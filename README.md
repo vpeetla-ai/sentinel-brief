@@ -10,47 +10,38 @@ Staying current on AI research, industry news, and community signal across nine+
 
 ## Architecture (60s)
 
+Canonical diagram: [`docs/diagrams/canonical-architecture.mmd`](docs/diagrams/canonical-architecture.mmd)
+
 ```mermaid
 flowchart TB
-  subgraph schedule [Schedule]
-    CRON[Render cron / POST /runs]
+  CRON["Cron · POST /runs"] --> FETCH[fetch_sources]
+  FETCH --> DIFF[diff_items]
+  DIFF --> BRIEF[write_brief]
+  BRIEF --> EVAL[run_eval]
+  EVAL --> GW[gateway_and_email]
+  GW --> ARCH[archive_report]
+
+  subgraph sources["Allowlisted sources (read-only)"]
+    HN1[HN top · Firebase]
+    HN2[HN AI · Algolia]
+    ARX[arXiv cs.AI]
+    VB[VentureBeat AI]
+    MIT[MIT Tech Review]
+    INFO[The Information · headlines]
+    PD[Paper Digest]
+    BATCH[The Batch]
+    TDS[Towards Data Science]
   end
 
-  subgraph ingest [Ingest — read-only]
-    SRC[Allowlisted adapters]
-    SRC --> HN[HN Firebase + Algolia AI]
-    SRC --> ARX[arXiv cs.AI Atom]
-    SRC --> RSS[RSS feeds]
-  end
-
-  subgraph pipeline [LangGraph pipeline]
-    F[fetch_sources]
-    D[diff_items]
-    S[write_brief]
-    E[run_eval]
-    G[gateway_and_email]
-    A[archive_report]
-    F --> D --> S --> E --> G --> A
-  end
-
-  subgraph store [Persistence]
-    SNAP[(snapshots/)]
-    REP[(reports/)]
-  end
-
-  subgraph govern [Governance]
-    EVAL[Eval gate]
-    GW[AegisAI gateway]
-    MAIL[Resend email]
-  end
-
-  CRON --> F
-  ingest --> F
-  D <--> SNAP
-  A --> REP
-  E --> EVAL
-  G --> GW --> MAIL
+  sources --> FETCH
+  SNAP[(snapshots/)] <--> DIFF
+  ARCH --> REP[(reports/)]
+  GW --> AEGIS[AegisAI gateway] --> MAIL[Resend email]
 ```
+
+**Read path:** sources → fetch → diff (vs snapshots) → brief → eval → gateway → email → archive.
+
+**Governance boundary:** only `gateway_and_email` sends mail; everything before it is autonomous.
 
 ## Status
 
@@ -64,7 +55,7 @@ flowchart TB
 | Resend email | ✅ | Dry-run without keys |
 | FastAPI + report archive | ✅ | `GET /reports`, `GET /reports/{id}` |
 | Demo UI | ✅ | Static `demo/` — architecture + report viewer |
-| Render deploy | 🟡 | `render.yaml` ready; cron manual |
+| Render deploy | 🟡 | `render.yaml` + [DEPLOY.md](docs/DEPLOY.md); set `SENTINEL_API_URL` for nightly GH Action |
 | LLM summarization | 🟡 | Template brief MVP; LLM hook planned |
 | Playwright scrape | ⬜ | Deferred — RSS/API per ADR-0001 |
 
@@ -117,8 +108,8 @@ Configure in [`config/sources.yaml`](config/sources.yaml).
 |-------|-------------|
 | Orchestration | LangGraph `StateGraph` |
 | Governance | AegisAI gateway on `email.send` |
-| Evaluation | In-repo eval gate + golden-eval-registry (planned suite) |
+| Evaluation | In-repo eval gate + [golden-eval-registry](https://github.com/vpeetla-ai/golden-eval-registry) `sentinel_brief_gate_v1` |
 | Observability | Structured report JSON; Langfuse hook planned |
-| Deploy | Render API + Vercel static demo |
+| Deploy | Render API + Vercel static demo — see [DEPLOY.md](docs/DEPLOY.md) |
 
 Part of the [vpeetla-ai](https://github.com/vpeetla-ai) governed agent portfolio.

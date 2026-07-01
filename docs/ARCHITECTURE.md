@@ -6,6 +6,37 @@
 
 **System:** Overnight **governed intelligence reporter** that ingests allowlisted public sources, detects what's new since last run, produces an executive markdown brief, passes an eval gate, and sends email only through the AegisAI gateway.
 
+## System diagram
+
+Same as README — source of truth: [`diagrams/canonical-architecture.mmd`](diagrams/canonical-architecture.mmd)
+
+```mermaid
+flowchart TB
+  CRON["Cron · POST /runs"] --> FETCH[fetch_sources]
+  FETCH --> DIFF[diff_items]
+  DIFF --> BRIEF[write_brief]
+  BRIEF --> EVAL[run_eval]
+  EVAL --> GW[gateway_and_email]
+  GW --> ARCH[archive_report]
+
+  subgraph sources["Allowlisted sources (read-only)"]
+    HN1[HN top · Firebase]
+    HN2[HN AI · Algolia]
+    ARX[arXiv cs.AI]
+    VB[VentureBeat AI]
+    MIT[MIT Tech Review]
+    INFO[The Information · headlines]
+    PD[Paper Digest]
+    BATCH[The Batch]
+    TDS[Towards Data Science]
+  end
+
+  sources --> FETCH
+  SNAP[(snapshots/)] <--> DIFF
+  ARCH --> REP[(reports/)]
+  GW --> AEGIS[AegisAI gateway] --> MAIL[Resend email]
+```
+
 ## Layered view
 
 ```text

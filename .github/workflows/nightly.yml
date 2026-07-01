@@ -1,0 +1,22 @@
+name: Nightly brief
+
+on:
+  schedule:
+    # 06:00 UTC daily
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Sentinel Brief run
+        env:
+          API_URL: ${{ secrets.SENTINEL_API_URL }}
+        run: |
+          if [ -z "$API_URL" ]; then
+            echo "SENTINEL_API_URL secret not set — skip (set after Render deploy)"
+            exit 0
+          fi
+          curl -fsS -X POST "${API_URL%/}/runs"
+          curl -fsS "${API_URL%/}/reports?limit=1"

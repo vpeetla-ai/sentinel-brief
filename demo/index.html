@@ -22,7 +22,12 @@
     th, td { text-align: left; padding: .5rem; border-bottom: 1px solid #2a3544; }
     .status-ok { color: var(--ok); }
     a { color: var(--accent); }
+    .mermaid { background: #0a0e14; border-radius: 8px; padding: 1rem; overflow-x: auto; }
   </style>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true, theme: 'dark', securityLevel: 'loose' });
+  </script>
 </head>
 <body>
   <header>
@@ -39,8 +44,31 @@
     </div>
 
     <section id="arch" class="panel active">
-      <h2>Pipeline</h2>
-      <pre>CRON → fetch_sources → diff_items → write_brief → run_eval → gateway_and_email → archive_report</pre>
+      <h2>System diagram</h2>
+      <pre class="mermaid">
+flowchart TB
+  CRON["Cron · POST /runs"] --> FETCH[fetch_sources]
+  FETCH --> DIFF[diff_items]
+  DIFF --> BRIEF[write_brief]
+  BRIEF --> EVAL[run_eval]
+  EVAL --> GW[gateway_and_email]
+  GW --> ARCH[archive_report]
+  subgraph sources["Allowlisted sources (read-only)"]
+    HN1[HN top · Firebase]
+    HN2[HN AI · Algolia]
+    ARX[arXiv cs.AI]
+    VB[VentureBeat AI]
+    MIT[MIT Tech Review]
+    INFO[The Information · headlines]
+    PD[Paper Digest]
+    BATCH[The Batch]
+    TDS[Towards Data Science]
+  end
+  sources --> FETCH
+  SNAP[(snapshots/)] <--> DIFF
+  ARCH --> REP[(reports/)]
+  GW --> AEGIS[AegisAI gateway] --> MAIL[Resend email]
+      </pre>
       <h3>Governance boundary</h3>
       <ul>
         <li><strong>Autonomous inner loop:</strong> fetch, diff, summarize, eval</li>
@@ -89,6 +117,7 @@
       <div id="report-list">Loading demo placeholder…</div>
     </section>
   </main>
+  <script src="config.js"></script>
   <script>
     document.querySelectorAll('.tabs button').forEach(btn => {
       btn.addEventListener('click', () => {
