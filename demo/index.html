@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sentinel Brief — Governed Overnight Intelligence</title>
+  <style>
+    :root { --bg:#0f1419; --card:#1a2332; --text:#e7ecf3; --muted:#8b9cb3; --accent:#3d9cf5; --ok:#3dd68c; }
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; line-height: 1.5; }
+    header { padding: 2rem; border-bottom: 1px solid #2a3544; }
+    h1 { margin: 0 0 .5rem; font-size: 1.75rem; }
+    .tag { color: var(--accent); font-size: .9rem; }
+    main { max-width: 960px; margin: 0 auto; padding: 1.5rem; }
+    .tabs { display: flex; gap: .5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .tabs button { background: var(--card); border: 1px solid #2a3544; color: var(--text); padding: .5rem 1rem; border-radius: 6px; cursor: pointer; }
+    .tabs button.active { border-color: var(--accent); color: var(--accent); }
+    .panel { display: none; background: var(--card); border-radius: 8px; padding: 1.25rem; border: 1px solid #2a3544; }
+    .panel.active { display: block; }
+    pre { background: #0a0e14; padding: 1rem; overflow: auto; border-radius: 6px; font-size: .85rem; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: .5rem; border-bottom: 1px solid #2a3544; }
+    .status-ok { color: var(--ok); }
+    a { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="tag">vpeetla-ai · governed autonomy</p>
+    <h1>Sentinel Brief</h1>
+    <p>Overnight AI intelligence — nine allowlisted sources → diff → eval → gateway email</p>
+  </header>
+  <main>
+    <div class="tabs">
+      <button class="active" data-tab="arch">Architecture</button>
+      <button data-tab="tradeoffs">Tradeoffs</button>
+      <button data-tab="sources">Sources</button>
+      <button data-tab="reports">Reports</button>
+    </div>
+
+    <section id="arch" class="panel active">
+      <h2>Pipeline</h2>
+      <pre>CRON → fetch_sources → diff_items → write_brief → run_eval → gateway_and_email → archive_report</pre>
+      <h3>Governance boundary</h3>
+      <ul>
+        <li><strong>Autonomous inner loop:</strong> fetch, diff, summarize, eval</li>
+        <li><strong>Governed outer loop:</strong> AegisAI gateway on <code>email.send</code> only</li>
+      </ul>
+      <h3>Stack</h3>
+      <table>
+        <tr><th>Layer</th><th>Tech</th></tr>
+        <tr><td>Orchestration</td><td>LangGraph StateGraph</td></tr>
+        <tr><td>API</td><td>FastAPI on Render</td></tr>
+        <tr><td>Email</td><td>Resend + gateway</td></tr>
+        <tr><td>Store</td><td>JSON snapshots + reports</td></tr>
+      </table>
+    </section>
+
+    <section id="tradeoffs" class="panel">
+      <h2>Key tradeoffs</h2>
+      <table>
+        <tr><th>Choice</th><th>Upside</th><th>Downside</th></tr>
+        <tr><td>RSS/API over scrape</td><td>Stable, ToS-safe</td><td>Misses paywalled bodies</td></tr>
+        <tr><td>Eval before email</td><td>Blocks junk sends</td><td>Quiet days may skip</td></tr>
+        <tr><td>Template brief MVP</td><td>Free, testable</td><td>Less narrative</td></tr>
+        <tr><td>JSON snapshots</td><td>Portable</td><td>No dedup yet</td></tr>
+      </table>
+      <p>See <a href="https://github.com/vpeetla-ai/sentinel-brief/blob/main/docs/ARCHITECTURE.md">ARCHITECTURE.md</a> and <a href="https://github.com/vpeetla-ai/sentinel-brief/blob/main/docs/adr/0001-governed-overnight-brief.md">ADR-0001</a>.</p>
+    </section>
+
+    <section id="sources" class="panel">
+      <h2>Allowlisted sources</h2>
+      <ul>
+        <li>Hacker News (Firebase top)</li>
+        <li>HN AI front page (Algolia)</li>
+        <li>arXiv cs.AI</li>
+        <li>VentureBeat AI</li>
+        <li>MIT Technology Review</li>
+        <li>The Information <em>(headlines only)</em></li>
+        <li>Paper Digest</li>
+        <li>The Batch — DeepLearning.AI</li>
+        <li>Towards Data Science</li>
+      </ul>
+    </section>
+
+    <section id="reports" class="panel">
+      <h2>Recent reports</h2>
+      <p id="api-hint" class="tag">Set <code>API_BASE</code> in console to load from deployed API.</p>
+      <div id="report-list">Loading demo placeholder…</div>
+    </section>
+  </main>
+  <script>
+    document.querySelectorAll('.tabs button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.tab).classList.add('active');
+      });
+    });
+    const API_BASE = window.SENTINEL_API || '';
+    const el = document.getElementById('report-list');
+    if (!API_BASE) {
+      el.innerHTML = '<p>Deploy API and set <code>window.SENTINEL_API</code> to enable live reports. Run locally: <code>curl -X POST localhost:8000/runs</code></p>';
+    } else {
+      fetch(API_BASE + '/reports').then(r => r.json()).then(data => {
+        if (!data.reports?.length) { el.textContent = 'No reports yet.'; return; }
+        el.innerHTML = '<table><tr><th>Run</th><th>Status</th><th>Deltas</th><th>Eval</th></tr>' +
+          data.reports.map(r => `<tr><td><a href="#">${r.run_id?.slice(0,8)}…</a></td><td>${r.status}</td><td>${r.delta_count}</td><td class="${r.eval_passed?'status-ok':''}">${r.eval_passed?'pass':'fail'}</td></tr>`).join('') + '</table>';
+      }).catch(() => { el.textContent = 'Could not reach API.'; });
+    }
+  </script>
+</body>
+</html>

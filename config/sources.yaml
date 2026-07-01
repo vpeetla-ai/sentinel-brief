@@ -1,0 +1,67 @@
+# Allowlisted intelligence sources — RSS/API first; scrape deferred per ADR-0001.
+sources:
+  - id: hn_top
+    label: Hacker News (top)
+    kind: hn_firebase
+    enabled: true
+    url: https://hacker-news.firebaseio.com/v0
+    notes: Official Firebase API — top stories
+
+  - id: hn_ai
+    label: HN AI front page
+    kind: hn_algolia
+    enabled: true
+    url: https://hn.algolia.com/api/v1/search
+    query: artificial intelligence OR LLM OR agent
+    notes: Algolia HN search — AI-filtered stories
+
+  - id: arxiv_cs_ai
+    label: arXiv cs.AI
+    kind: arxiv_atom
+    enabled: true
+    url: http://export.arxiv.org/api/query
+    category: cs.AI
+    notes: Atom API — latest papers
+
+  - id: venturebeat_ai
+    label: VentureBeat AI
+    kind: rss
+    enabled: true
+    url: https://venturebeat.com/category/ai/feed/
+    notes: Category RSS feed
+
+  - id: mit_tech_review
+    label: MIT Technology Review
+    kind: rss
+    enabled: true
+    url: https://www.technologyreview.com/feed/
+    notes: Site-wide feed; AI stories surfaced in brief
+
+  - id: the_information
+    label: The Information
+    kind: rss_partial
+    enabled: true
+    url: https://www.theinformation.com/feed
+    paywalled: true
+    notes: Headlines/teasers only — full text paywalled
+
+  - id: paper_digest
+    label: Paper Digest
+    kind: rss
+    enabled: true
+    url: https://www.paperdigest.org/feed/
+    notes: Paper summaries feed (fallback if unavailable)
+
+  - id: the_batch
+    label: The Batch (DeepLearning.AI)
+    kind: rss
+    enabled: true
+    url: https://www.deeplearning.ai/the-batch/feed/
+    notes: Andrew Ng newsletter RSS
+
+  - id: towards_data_science
+    label: Towards Data Science
+    kind: rss
+    enabled: true
+    url: https://towardsdatascience.com/feed
+    notes: Medium publication RSS — respect ToS

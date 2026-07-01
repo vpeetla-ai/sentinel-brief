@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: sentinel-brief-api
+    runtime: docker
+    plan: free
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHONPATH
+        value: /app/backend
+      - key: BRIEF_RECIPIENT_EMAIL
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: AEGISAI_API_BASE_URL
+        sync: false
+      - key: AEGISAI_GATEWAY_ENABLED
+        value: "false"

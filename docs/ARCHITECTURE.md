@@ -1,0 +1,147 @@
+# Architecture — Sentinel Brief
+
+## Who & what
+
+**Customer:** Principal / staff AI architect who needs a daily signal scan without manual tab-hopping.
+
+**System:** Overnight **governed intelligence reporter** that ingests allowlisted public sources, detects what's new since last run, produces an executive markdown brief, passes an eval gate, and sends email only through the AegisAI gateway.
+
+## Layered view
+
+```text
+┌─────────────────────────────────────────────────────────────┐
+│  Presentation — demo UI, email HTML, GET /reports           │
+├─────────────────────────────────────────────────────────────┤
+│  Orchestration — LangGraph: fetch→diff→brief→eval→email     │
+├─────────────────────────────────────────────────────────────┤
+│  Domain — RawItem, snapshots, deltas, BriefEvalResult       │
+├─────────────────────────────────────────────────────────────┤
+│  Integrations — RSS/Atom/HN APIs, Resend, AegisAI gateway   │
+├─────────────────────────────────────────────────────────────┤
+│  Config — sources.yaml allowlist, env secrets               │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## Pipeline (nodes)
+
+| Node | Responsibility | Side effects |
+|------|----------------|--------------|
+| `fetch_sources` | Parallel adapter fetch | None (HTTP read) |
+| `diff_items` | Compare fingerprints vs snapshot store | Writes snapshots |
+| `write_brief` | Markdown executive brief | None |
+| `run_eval` | Structure, citations, min-delta check | None |
+| `gateway_and_email` | AegisAI authorize → Resend | **Email** |
+| `archive_report` | JSON report artifact | Writes reports |
+
+**Only irreversible side effect:** email send (after eval pass + gateway allow).
+
+## Source adapter strategy
+
+```mermaid
+flowchart LR
+  subgraph preferred [Preferred — MVP]
+    API[Official APIs]
+    RSS[RSS / Atom]
+  end
+  subgraph deferred [Deferred]
+    PW[Playwright scrape]
+    PAY[Paywall bypass]
+  end
+  preferred --> Adapters
+  deferred -.->|"ADR-0001 no"| Adapters
+```
+
+| Source | Mechanism | Rationale |
+|--------|-----------|-----------|
+| HN top | Firebase JSON API | Stable, ToS-friendly |
+| HN AI | Algolia search API | Filters AI signal without scraping |
+| arXiv cs.AI | Atom export API | Canonical, no scrape |
+| VentureBeat, MIT TR, Batch, TDS, Paper Digest | RSS | Low fragility |
+| The Information | RSS partial | Honest headline-only; no paywall bypass |
+
+## Governance model
+
+```mermaid
+sequenceDiagram
+  participant G as LangGraph
+  participant E as Eval gate
+  participant A as AegisAI gateway
+  participant R as Resend
+
+  G->>E: brief + deltas
+  alt eval failed
+    E-->>G: block email
+  else eval passed
+    E-->>G: pass
+    G->>A: authorize email.send
+    alt denied
+      A-->>G: blocked
+    else allowed
+      A-->>G: allow
+      G->>R: send brief
+    end
+  end
+```
+
+- **Eval gate (inner loop):** autonomous — no human per run
+- **Gateway (outer loop):** policy on email; HITL when gateway returns `pending_approval`
+- **Fail-open vs fail-closed:** `AEGISAI_GATEWAY_FAIL_OPEN=true` in dev; `false` in prod
+
+## Key decisions
+
+| ID | Decision | Alternatives considered |
+|----|----------|-------------------------|
+| D1 | LangGraph linear pipeline | Celery tasks, cron shell script |
+| D2 | JSON snapshot store | SQLite, Redis — chose JSON for MVP portability |
+| D3 | Template summarizer MVP | LLM-first — deferred cost/latency tuning |
+| D4 | RSS/API only | Playwright — rejected for fragility + ToS |
+| D5 | Single recipient email | Slack digest — future |
+| D6 | Gateway on email only | Gateway on fetch — rejected (read-only) |
+
+## Tradeoffs
+
+| Choice | Upside | Downside |
+|--------|--------|----------|
+| Autonomous inner loop | Runs overnight without you | Bad brief possible if eval too weak |
+| Eval before email | Blocks low-quality sends | May skip useful quiet days (min_delta) |
+| RSS over scrape | Stable, fast, legal | Misses layout-only sites, paywalled bodies |
+| Template brief | Zero LLM cost, deterministic tests | Less narrative synthesis |
+| Per-source snapshots | Simple diff | No cross-source dedup yet |
+| Fail-open gateway (dev) | Local iteration | Must disable in prod |
+
+## Data flow
+
+```text
+sources.yaml → adapters → RawItem[]
+                ↓
+         snapshot diff → delta RawItem[]
+                ↓
+         summarize_brief → markdown
+                ↓
+         evaluate_brief → pass/fail
+                ↓
+    gateway authorize → email (if pass)
+                ↓
+         data/reports/{run_id}.json
+```
+
+## Deployment
+
+| Component | Target |
+|-----------|--------|
+| API | Render (`render.yaml`) |
+| Demo UI | Vercel static (`demo/`) |
+| Cron | Render cron job → `POST /runs` or GitHub Actions schedule |
+| Secrets | `RESEND_API_KEY`, `BRIEF_RECIPIENT_EMAIL`, AegisAI URL |
+
+## Future (honest backlog)
+
+1. LLM executive synthesis (LiteLLM) with citation grounding
+2. Cross-source dedup (URL normalization, title fuzzy match)
+3. golden-eval-registry suite: `sentinel-brief-quality`
+4. Langfuse spans per node
+5. Slack/Telegram via same gateway pattern
+
+## Related ADRs
+
+- [ADR-0001: Governed overnight brief](adr/0001-governed-overnight-brief.md)
