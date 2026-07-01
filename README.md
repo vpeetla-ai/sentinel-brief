@@ -55,7 +55,7 @@ flowchart TB
 | Resend email | ✅ | Dry-run without keys |
 | FastAPI + report archive | ✅ | `GET /reports`, `GET /reports/{id}` |
 | Demo UI | ✅ | Static `demo/` — architecture + report viewer |
-| Render deploy | 🟡 | `render.yaml` + [DEPLOY.md](docs/DEPLOY.md); set `SENTINEL_API_URL` for nightly GH Action |
+| Render deploy | 🟡 | [DEPLOY.md](docs/DEPLOY.md) — Blueprint + Resend + `SENTINEL_API_URL` cron secret |
 | LLM summarization | 🟡 | Template brief MVP; LLM hook planned |
 | Playwright scrape | ⬜ | Deferred — RSS/API per ADR-0001 |
 

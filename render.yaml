@@ -17,3 +17,7 @@ services:
         sync: false
       - key: AEGISAI_GATEWAY_ENABLED
         value: "false"
+      - key: AEGISAI_GATEWAY_FAIL_OPEN
+        value: "true"
+      - key: BRIEF_FROM_EMAIL
+        value: "onboarding@resend.dev"
