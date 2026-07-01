@@ -1,16 +1,35 @@
 # Sentinel Brief
 
 [![CI](https://github.com/vpeetla-ai/sentinel-brief/actions/workflows/ci.yml/badge.svg)](https://github.com/vpeetla-ai/sentinel-brief/actions/workflows/ci.yml)
+[![Live Demo](https://img.shields.io/badge/demo-live-brightgreen)](https://sentinel-brief.vercel.app)
+[![API](https://img.shields.io/badge/API-Render-46E3B7)](https://sentinel-brief-api.onrender.com/health)
 
-**Governed overnight AI intelligence reporter** — allowlisted sources → snapshot diff → executive brief → eval gate → gateway-authorized email → archived reports.
+**Governed overnight AI intelligence reporter** — nine allowlisted sources → snapshot diff → executive brief → eval gate → gateway email → archived reports.
 
-## Problem
+[▶ Live demo](https://sentinel-brief.vercel.app) · [API health](https://sentinel-brief-api.onrender.com/health) · [Case study](https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/case-studies/sentinel-brief.md) · [Deploy](docs/DEPLOY.md)
 
-Staying current on AI research, industry news, and community signal across nine+ sources is manual and noisy. You want a **daily executive brief** that runs while you sleep — but **email is a side effect** and must stay governed.
+---
 
-## Architecture (60s)
+## What this is
 
-Canonical diagram: [`docs/diagrams/canonical-architecture.mmd`](docs/diagrams/canonical-architecture.mmd)
+A **daily executive brief** for principal AI architects: Hacker News, arXiv cs.AI, industry press, and newsletters — scanned overnight, summarized, and emailed to your inbox with a full audit trail.
+
+Part of the [vpeetla-ai](https://github.com/vpeetla-ai) governed agent portfolio (repo #17).
+
+## How we solve it
+
+| Problem | Approach |
+|---------|----------|
+| Nine tabs every morning | Allowlisted RSS/API adapters in `config/sources.yaml` |
+| Noise vs signal | Per-source JSON snapshots — only **deltas** enter the brief |
+| Uncontrolled autonomy | **Eval gate** before send; **AegisAI gateway** on `email.send` only |
+| No audit trail | Every run archived — `GET /reports`, demo UI viewer |
+
+**Governance boundary:** fetch, diff, summarize, and eval run autonomously. Email is the only irreversible side effect.
+
+## Architecture
+
+Canonical: [`docs/diagrams/canonical-architecture.mmd`](docs/diagrams/canonical-architecture.mmd)
 
 ```mermaid
 flowchart TB
@@ -39,77 +58,64 @@ flowchart TB
   GW --> AEGIS[AegisAI gateway] --> MAIL[Resend email]
 ```
 
-**Read path:** sources → fetch → diff (vs snapshots) → brief → eval → gateway → email → archive.
+## Case study & tradeoffs
 
-**Governance boundary:** only `gateway_and_email` sends mail; everything before it is autonomous.
+| Doc | Link |
+|-----|------|
+| **Case study** | [sentinel-brief.md](https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/case-studies/sentinel-brief.md) |
+| **Architecture** | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) |
+| **Product & tradeoffs** | [docs/PRODUCT.md](docs/PRODUCT.md) |
+| **ADR — governed overnight brief** | [docs/adr/0001-governed-overnight-brief.md](docs/adr/0001-governed-overnight-brief.md) |
+| **LOOPS harness** | [docs/LOOPS.md](docs/LOOPS.md) |
 
 ## Status
 
 | Area | Status | Notes |
 |------|--------|-------|
-| Source adapters (9 allowlisted) | ✅ MVP | RSS/API first; paywalled = headline only |
-| Snapshot + delta detection | ✅ | JSON per source |
-| LangGraph pipeline | ✅ | fetch → diff → summarize → eval → email → archive |
+| Source adapters (9 allowlisted) | ✅ | RSS/API first; paywalled = headline only |
+| LangGraph pipeline | ✅ | fetch → diff → brief → eval → email → archive |
 | Eval gate | ✅ | Min deltas, citations, structure |
-| AegisAI gateway on email | ✅ | Fail-open dev / fail-closed prod |
-| Resend email | ✅ | Dry-run without keys |
-| FastAPI + report archive | ✅ | `GET /reports`, `GET /reports/{id}` |
-| Demo UI | ✅ | Static `demo/` — architecture + report viewer |
-| Render deploy | 🟡 | [DEPLOY.md](docs/DEPLOY.md) — Blueprint + Resend + `SENTINEL_API_URL` cron secret |
-| LLM summarization | 🟡 | Template brief MVP; LLM hook planned |
-| Playwright scrape | ⬜ | Deferred — RSS/API per ADR-0001 |
+| Resend email | ✅ | Live — `vpeetla.ai@gmail.com` |
+| Render API | ✅ | [sentinel-brief-api.onrender.com](https://sentinel-brief-api.onrender.com) |
+| Vercel demo UI | ✅ | [sentinel-brief.vercel.app](https://sentinel-brief.vercel.app) |
+| Nightly cron | 🟡 | GitHub Action — set `SENTINEL_API_URL` secret |
+| Golden eval suite | ✅ | `sentinel_brief_gate_v1` in golden-eval-registry |
+| LLM synthesis | 🟡 | Template brief MVP; LLM hook planned |
+| Persistent report disk | 🟡 | Render ephemeral — reports reset on redeploy |
+| Playwright scrape | ⬜ | Deferred per ADR-0001 |
+
+---
 
 ## Quick start
 
 ```bash
+git clone https://github.com/vpeetla-ai/sentinel-brief.git
 cd sentinel-brief
 pip install -e ".[dev]"
 pytest -q
 uvicorn app.main:app --reload --app-dir backend
-# Trigger a run
 curl -X POST http://localhost:8000/runs
 ```
 
-Env (optional):
-
-```bash
-BRIEF_RECIPIENT_EMAIL=you@example.com
-RESEND_API_KEY=re_...
-AEGISAI_API_BASE_URL=https://your-aegis-api
-AEGISAI_GATEWAY_ENABLED=true
-```
+Env template: [`.env.example`](.env.example) · Production: [docs/DEPLOY.md](docs/DEPLOY.md)
 
 ## Sources (allowlisted)
 
-| Source | Adapter | Access |
-|--------|---------|--------|
-| Hacker News (top) | Firebase API | Public |
-| HN AI front page | Algolia HN search | Public |
-| arXiv cs.AI | Atom API | Public |
-| VentureBeat AI | RSS | Public |
-| MIT Technology Review | RSS | Public |
-| The Information | RSS partial | Paywalled headlines |
-| Paper Digest | RSS | Public |
-| The Batch (DeepLearning.AI) | RSS | Public |
-| Towards Data Science | Medium RSS | Public (ToS) |
+| Source | Adapter |
+|--------|---------|
+| Hacker News (top) | Firebase API |
+| HN AI front page | Algolia HN search |
+| arXiv cs.AI | Atom API |
+| VentureBeat AI · MIT TR · Batch · TDS · Paper Digest | RSS |
+| The Information | RSS partial (headlines only) |
 
 Configure in [`config/sources.yaml`](config/sources.yaml).
 
-## Docs
-
-- [Architecture](docs/ARCHITECTURE.md) — layers, decisions, tradeoffs
-- [Product](docs/PRODUCT.md) — who, jobs-to-be-done, roadmap
-- [ADR-0001](docs/adr/0001-governed-overnight-brief.md) — governed autonomy pattern
-- [LOOPS](docs/LOOPS.md) — overnight harness alignment
-
-## Stack fit (vpeetla-ai)
+## Stack fit
 
 | Layer | Integration |
 |-------|-------------|
 | Orchestration | LangGraph `StateGraph` |
 | Governance | AegisAI gateway on `email.send` |
-| Evaluation | In-repo eval gate + [golden-eval-registry](https://github.com/vpeetla-ai/golden-eval-registry) `sentinel_brief_gate_v1` |
-| Observability | Structured report JSON; Langfuse hook planned |
-| Deploy | Render API + Vercel static demo — see [DEPLOY.md](docs/DEPLOY.md) |
-
-Part of the [vpeetla-ai](https://github.com/vpeetla-ai) governed agent portfolio.
+| Evaluation | In-repo eval + [golden-eval-registry](https://github.com/vpeetla-ai/golden-eval-registry) |
+| Deploy | Render API + Vercel demo |
