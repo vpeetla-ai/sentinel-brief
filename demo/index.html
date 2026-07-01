@@ -113,10 +113,20 @@ flowchart TB
 
     <section id="reports" class="panel">
       <h2>Recent reports</h2>
-      <p id="api-hint" class="tag">Set <code>API_BASE</code> in console to load from deployed API.</p>
-      <div id="report-list">Loading demo placeholder…</div>
+      <p id="api-hint" class="tag"></p>
+      <p>
+        <button id="run-now" type="button" style="background:var(--accent);color:#fff;border:none;padding:.5rem 1rem;border-radius:6px;cursor:pointer;">
+          Run brief now
+        </button>
+        <span id="run-status" style="margin-left:.75rem;color:var(--muted);"></span>
+      </p>
+      <div id="report-list">Loading…</div>
+      <pre id="report-detail" style="margin-top:1rem;display:none;max-height:320px;"></pre>
     </section>
   </main>
+  <script>
+    window.SENTINEL_API = window.SENTINEL_API || "https://sentinel-brief-api.onrender.com";
+  </script>
   <script src="config.js"></script>
   <script>
     document.querySelectorAll('.tabs button').forEach(btn => {
@@ -127,17 +137,82 @@ flowchart TB
         document.getElementById(btn.dataset.tab).classList.add('active');
       });
     });
-    const API_BASE = window.SENTINEL_API || '';
-    const el = document.getElementById('report-list');
-    if (!API_BASE) {
-      el.innerHTML = '<p>Deploy API and set <code>window.SENTINEL_API</code> to enable live reports. Run locally: <code>curl -X POST localhost:8000/runs</code></p>';
-    } else {
-      fetch(API_BASE + '/reports').then(r => r.json()).then(data => {
-        if (!data.reports?.length) { el.textContent = 'No reports yet.'; return; }
-        el.innerHTML = '<table><tr><th>Run</th><th>Status</th><th>Deltas</th><th>Eval</th></tr>' +
-          data.reports.map(r => `<tr><td><a href="#">${r.run_id?.slice(0,8)}…</a></td><td>${r.status}</td><td>${r.delta_count}</td><td class="${r.eval_passed?'status-ok':''}">${r.eval_passed?'pass':'fail'}</td></tr>`).join('') + '</table>';
-      }).catch(() => { el.textContent = 'Could not reach API.'; });
+    const API_BASE = (window.SENTINEL_API || "").replace(/\/$/, "");
+    const el = document.getElementById("report-list");
+    const hint = document.getElementById("api-hint");
+    const detail = document.getElementById("report-detail");
+    const runBtn = document.getElementById("run-now");
+    const runStatus = document.getElementById("run-status");
+
+    async function loadReports() {
+      if (!API_BASE) {
+        hint.textContent = "API URL not configured.";
+        el.innerHTML = "<p>Set window.SENTINEL_API in config.js</p>";
+        return;
+      }
+      hint.textContent = "API: " + API_BASE;
+      try {
+        const res = await fetch(API_BASE + "/reports?limit=10");
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const data = await res.json();
+        if (!data.reports?.length) {
+          el.textContent = "No reports yet — click Run brief now (takes ~1 min).";
+          return;
+        }
+        el.innerHTML =
+          "<table><tr><th>Run</th><th>When</th><th>Status</th><th>Deltas</th><th>Eval</th><th>Email</th></tr>" +
+          data.reports
+            .map(
+              (r) =>
+                `<tr data-run="${r.run_id}" style="cursor:pointer">` +
+                `<td><code>${(r.run_id || "").slice(0, 8)}…</code></td>` +
+                `<td>${(r.created_at || "").slice(0, 19).replace("T", " ")}</td>` +
+                `<td>${r.status || "—"}</td>` +
+                `<td>${r.delta_count ?? "—"}</td>` +
+                `<td class="${r.eval_passed ? "status-ok" : ""}">${r.eval_passed ? "pass" : "fail"}</td>` +
+                `<td>${r.status === "emailed" ? "sent" : "—"}</td></tr>`
+            )
+            .join("") +
+          "</table>";
+        el.querySelectorAll("tr[data-run]").forEach((row) => {
+          row.addEventListener("click", () => showReport(row.dataset.run));
+        });
+      } catch (err) {
+        el.textContent = "Could not reach API (" + err.message + "). Render may be waking up — retry in 30s.";
+      }
     }
+
+    async function showReport(runId) {
+      try {
+        const res = await fetch(API_BASE + "/reports/" + runId);
+        const data = await res.json();
+        detail.style.display = "block";
+        detail.textContent = data.brief_markdown || JSON.stringify(data, null, 2);
+      } catch {
+        detail.textContent = "Failed to load report.";
+      }
+    }
+
+    runBtn.addEventListener("click", async () => {
+      if (!API_BASE) return;
+      runBtn.disabled = true;
+      runStatus.textContent = "Running… fetching 9 sources (~60–90s)";
+      try {
+        const res = await fetch(API_BASE + "/runs", { method: "POST" });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || "HTTP " + res.status);
+        runStatus.textContent =
+          `Done — ${data.delta_count} deltas, eval ${data.eval_passed ? "pass" : "fail"}, email: ${data.email_status || "—"}`;
+        await loadReports();
+        if (data.run_id) showReport(data.run_id);
+      } catch (err) {
+        runStatus.textContent = "Failed: " + err.message + " (cold start? retry)";
+      } finally {
+        runBtn.disabled = false;
+      }
+    });
+
+    loadReports();
   </script>
 </body>
 </html>
