@@ -1,2 +1,2 @@
-// Set after Render deploy — used by demo/index.html
-window.SENTINEL_API = window.SENTINEL_API || "";
+// Live Render API — used by demo/index.html Reports tab
+window.SENTINEL_API = "https://sentinel-brief-api.onrender.com";
