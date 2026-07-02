@@ -18,7 +18,14 @@ flowchart TB
     TDS[Towards Data Science]
   end
 
+  subgraph obs["Trace-linked LLMOps"]
+    REC["TraceRecorder<br/>system · trace · node"]
+    LF["Langfuse Cloud<br/>LANGFUSE_*"]
+  end
+
   sources --> FETCH
   SNAP[(snapshots/)] <--> DIFF
   ARCH --> REP[(reports/)]
   GW --> AEGIS[AegisAI gateway] --> MAIL[Resend email]
+  FETCH & DIFF & BRIEF & EVAL -.-> REC
+  REC -.-> LF
