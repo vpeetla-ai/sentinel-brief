@@ -2,7 +2,7 @@
 
 
 <!-- vpeetla-tech-stack:start -->
-[![Python 3.11](https://img.shields.io/badge/Python-3.11-3776AB?style=flat-square)]() [![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat-square)]() [![LangGraph](https://img.shields.io/badge/LangGraph-9333EA?style=flat-square)]() [![RSS](https://img.shields.io/badge/RSS-FF6600?style=flat-square)]() [![Resend](https://img.shields.io/badge/Resend-000000?style=flat-square)]() [![Vercel](https://img.shields.io/badge/Vercel-000000?style=flat-square)]() [![Render](https://img.shields.io/badge/Render-46E3B7?style=flat-square)]()
+[![Python 3.11](https://img.shields.io/badge/Python-3.11-3776AB?style=flat-square)]() [![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat-square)]() [![LangGraph](https://img.shields.io/badge/LangGraph-9333EA?style=flat-square)]() [![Langfuse](https://img.shields.io/badge/Langfuse-6366F1?style=flat-square)]() [![RSS](https://img.shields.io/badge/RSS-FF6600?style=flat-square)]() [![Resend](https://img.shields.io/badge/Resend-000000?style=flat-square)]() [![Vercel](https://img.shields.io/badge/Vercel-000000?style=flat-square)]() [![Render](https://img.shields.io/badge/Render-46E3B7?style=flat-square)]()
 <!-- vpeetla-tech-stack:end -->
 [![CI](https://github.com/vpeetla-ai/sentinel-brief/actions/workflows/ci.yml/badge.svg)](https://github.com/vpeetla-ai/sentinel-brief/actions/workflows/ci.yml)
 [![Live Demo](https://img.shields.io/badge/demo-live-brightgreen)](https://sentinel-brief.vercel.app)
@@ -84,6 +84,8 @@ flowchart TB
 | Vercel demo UI | ✅ | [sentinel-brief.vercel.app](https://sentinel-brief.vercel.app) |
 | Nightly cron | 🟡 | GitHub Action — set `SENTINEL_API_URL` secret |
 | Golden eval suite | ✅ | `sentinel_brief_gate_v1` in golden-eval-registry |
+| Trace-linked observability | ✅ | `app.vpeetla_observability` — system/trace/node spans |
+| Langfuse export | ✅ | Set `LANGFUSE_*` in Render — see [DEPLOY.md](docs/DEPLOY.md) |
 | LLM synthesis | 🟡 | Template brief MVP; LLM hook planned |
 | Persistent report disk | 🟡 | Render ephemeral — reports reset on redeploy |
 | Playwright scrape | ⬜ | Deferred per ADR-0001 |
@@ -122,4 +124,5 @@ Configure in [`config/sources.yaml`](config/sources.yaml).
 | Orchestration | LangGraph `StateGraph` |
 | Governance | AegisAI gateway on `email.send` |
 | Evaluation | In-repo eval + [golden-eval-registry](https://github.com/vpeetla-ai/golden-eval-registry) |
+| Observability | Trace-linked spans + optional Langfuse — [ARCHITECTURE](docs/ARCHITECTURE.md#observability) |
 | Deploy | Render API + Vercel demo |

@@ -63,7 +63,20 @@ Set these **in Render only** (not in git):
 | `AEGISAI_GATEWAY_FAIL_OPEN` | `true` (MVP) | No |
 | `MIN_DELTA_ITEMS` | `3` (default) | No |
 
-`render.yaml` already sets `PYTHONPATH` and declares secret keys — you fill values in the dashboard after Blueprint apply.
+### Observability (optional — Langfuse Cloud)
+
+| Variable | Value | Required |
+|----------|-------|----------|
+| `LANGFUSE_PUBLIC_KEY` | `pk-lf-...` from Langfuse project | No |
+| `LANGFUSE_SECRET_KEY` | `sk-lf-...` | No |
+| `LANGFUSE_HOST` | `https://cloud.langfuse.com` | No (default) |
+| `LANGFUSE_ENABLED` | `true` | No |
+
+1. [cloud.langfuse.com](https://cloud.langfuse.com) → create project `sentinel-brief`
+2. Settings → API Keys → copy public + secret keys into Render env
+3. Trigger `POST /runs` → Langfuse → **Traces** → filter by project
+
+`render.yaml` already declares `LANGFUSE_*` keys — fill values in the dashboard after Blueprint apply.
 
 ### Verify API after deploy
 

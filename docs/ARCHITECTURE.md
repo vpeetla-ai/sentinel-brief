@@ -163,15 +163,26 @@ sources.yaml → adapters → RawItem[]
 | API | Render (`render.yaml`) |
 | Demo UI | Vercel static (`demo/`) |
 | Cron | Render cron job → `POST /runs` or GitHub Actions schedule |
-| Secrets | `RESEND_API_KEY`, `BRIEF_RECIPIENT_EMAIL`, AegisAI URL |
+| Secrets | `RESEND_API_KEY`, `BRIEF_RECIPIENT_EMAIL`, AegisAI URL, `LANGFUSE_*` (optional) |
+
+## Observability
+
+Trace-linked spans via `backend/app/vpeetla_observability/` — same three-level model as the org spec ([TRACE_LINKED_OBSERVABILITY](https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/docs/TRACE_LINKED_OBSERVABILITY.md)).
+
+| Signal | Where |
+|--------|-------|
+| Request trace ID | `TraceRequestMiddleware` on FastAPI |
+| Run recorder | `TraceRecorder` in `brief_runner.py` |
+| Graph node spans | `@observe_node` on fetch, diff, brief, eval, email |
+| Eval scores | `eval.brief_gate` attached before send |
+| Langfuse export | `LANGFUSE_PUBLIC_KEY` + `LANGFUSE_SECRET_KEY` |
 
 ## Future (honest backlog)
 
 1. LLM executive synthesis (LiteLLM) with citation grounding
 2. Cross-source dedup (URL normalization, title fuzzy match)
 3. golden-eval-registry suite: `sentinel-brief-quality`
-4. Langfuse spans per node
-5. Slack/Telegram via same gateway pattern
+4. Slack/Telegram via same gateway pattern
 
 ## Related ADRs
 
