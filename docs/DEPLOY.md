@@ -157,19 +157,23 @@ curl -X POST https://sentinel-brief-api.onrender.com/runs
 
 ## Vercel (demo UI)
 
+**Live demo (vpeetla-ai team):** [sentinel-brief-ruddy.vercel.app](https://sentinel-brief-ruddy.vercel.app)
+
+> `sentinel-brief.vercel.app` is registered to a **different** Vercel project (unrelated OSINT app). Use the team URL above or reclaim the domain in Vercel → Domains.
+
 1. [Vercel Dashboard](https://vercel.com) → **Add New** → **Project**
 2. Import **vpeetla-ai/sentinel-brief**
-3. **Root Directory:** `demo`
+3. **Root Directory:** leave as repo root — [`vercel.json`](../vercel.json) sets `outputDirectory: demo`
 4. Framework: **Other** (static)
 5. Deploy
 
-**Wire API to demo** — edit [`demo/config.js`](../demo/config.js) after deploy:
+**Wire API to demo** — [`demo/config.js`](../demo/config.js):
 
 ```javascript
 window.SENTINEL_API = "https://sentinel-brief-api.onrender.com";
 ```
 
-Commit + push, or set via Vercel redeploy. The **Reports** tab will load live runs.
+The **Reports** tab loads live runs from Render (CORS enabled).
 
 ---
 

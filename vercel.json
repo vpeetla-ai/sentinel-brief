@@ -1,0 +1,7 @@
+{
+  "framework": null,
+  "installCommand": "echo 'static sentinel demo'",
+  "buildCommand": "echo 'sentinel-brief demo'",
+  "outputDirectory": "demo",
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+}

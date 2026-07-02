@@ -9,3 +9,4 @@ dist/
 data/snapshots/*.json
 data/reports/*.json
 !.gitkeep
+.vercel

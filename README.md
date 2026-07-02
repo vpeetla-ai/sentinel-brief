@@ -5,12 +5,12 @@
 [![Python 3.11](https://img.shields.io/badge/Python-3.11-3776AB?style=flat-square)]() [![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat-square)]() [![LangGraph](https://img.shields.io/badge/LangGraph-9333EA?style=flat-square)]() [![Langfuse](https://img.shields.io/badge/Langfuse-6366F1?style=flat-square)]() [![RSS](https://img.shields.io/badge/RSS-FF6600?style=flat-square)]() [![Resend](https://img.shields.io/badge/Resend-000000?style=flat-square)]() [![Vercel](https://img.shields.io/badge/Vercel-000000?style=flat-square)]() [![Render](https://img.shields.io/badge/Render-46E3B7?style=flat-square)]()
 <!-- vpeetla-tech-stack:end -->
 [![CI](https://github.com/vpeetla-ai/sentinel-brief/actions/workflows/ci.yml/badge.svg)](https://github.com/vpeetla-ai/sentinel-brief/actions/workflows/ci.yml)
-[![Live Demo](https://img.shields.io/badge/demo-live-brightgreen)](https://sentinel-brief.vercel.app)
+[![Live Demo](https://img.shields.io/badge/demo-live-brightgreen)](https://sentinel-brief-ruddy.vercel.app)
 [![API](https://img.shields.io/badge/API-Render-46E3B7)](https://sentinel-brief-api.onrender.com/health)
 
 **Governed overnight AI intelligence reporter** — nine allowlisted sources → snapshot diff → executive brief → eval gate → gateway email → archived reports.
 
-[▶ Live demo](https://sentinel-brief.vercel.app) · [API health](https://sentinel-brief-api.onrender.com/health) · [Case study](https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/case-studies/sentinel-brief.md) · [Deploy](docs/DEPLOY.md)
+[▶ Live demo](https://sentinel-brief-ruddy.vercel.app) · [API health](https://sentinel-brief-api.onrender.com/health) · [Case study](https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/case-studies/sentinel-brief.md) · [Deploy](docs/DEPLOY.md)
 
 ---
 
@@ -82,7 +82,7 @@ flowchart TB
 | Eval gate | ✅ | Min deltas, citations, structure |
 | Resend email | ✅ | Live — `vpeetla.ai@gmail.com` |
 | Render API | ✅ | [sentinel-brief-api.onrender.com](https://sentinel-brief-api.onrender.com) |
-| Vercel demo UI | ✅ | [sentinel-brief.vercel.app](https://sentinel-brief.vercel.app) |
+| Vercel demo UI | ✅ | [sentinel-brief-ruddy.vercel.app](https://sentinel-brief-ruddy.vercel.app) |
 | Nightly cron | 🟡 | GitHub Action — set `SENTINEL_API_URL` secret |
 | Golden eval suite | ✅ | `sentinel_brief_gate_v1` in golden-eval-registry |
 | Trace-linked observability | ✅ | `app.vpeetla_observability` — system/trace/node spans |
