@@ -12,8 +12,11 @@ from pydantic import BaseModel
 from app.core.config import get_settings
 from app.services.brief_runner import run_brief
 from app.sources.base import load_source_configs
+from app.vpeetla_observability.middleware import TraceRequestMiddleware
 
 app = FastAPI(title="Sentinel Brief API", version="0.1.0")
+settings = get_settings()
+app.add_middleware(TraceRequestMiddleware, service_name=settings.app_name)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],

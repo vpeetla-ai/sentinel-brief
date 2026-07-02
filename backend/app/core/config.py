@@ -42,6 +42,12 @@ class Settings(BaseSettings):
     report_dir: Path = REPORT_DIR
     sources_config_path: Path = ROOT / "config" / "sources.yaml"
 
+    # Observability (optional Langfuse)
+    langfuse_public_key: str | None = None
+    langfuse_secret_key: str | None = None
+    langfuse_host: str = "https://cloud.langfuse.com"
+    langfuse_enabled: bool = True
+
     # Scheduler (cron expression for APScheduler if enabled)
     cron_enabled: bool = False
     cron_hour_utc: int = 6
