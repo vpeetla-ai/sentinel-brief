@@ -193,12 +193,31 @@ flowchart TB
       }
     }
 
+    async function wakeApi(maxAttempts = 4) {
+      for (let i = 0; i < maxAttempts; i++) {
+        try {
+          const res = await fetch(API_BASE + "/health", { signal: AbortSignal.timeout(45000) });
+          if (res.ok) return true;
+        } catch {
+          /* Render cold start — retry */
+        }
+        await new Promise((r) => setTimeout(r, 8000));
+      }
+      return false;
+    }
+
     runBtn.addEventListener("click", async () => {
       if (!API_BASE) return;
       runBtn.disabled = true;
-      runStatus.textContent = "Running… fetching 9 sources (~60–90s)";
+      runStatus.textContent = "Waking API…";
       try {
-        const res = await fetch(API_BASE + "/runs", { method: "POST" });
+        const awake = await wakeApi();
+        if (!awake) throw new Error("API not reachable — Render may still be starting");
+        runStatus.textContent = "Running… fetching 9 sources (~60–90s)";
+        const res = await fetch(API_BASE + "/runs", {
+          method: "POST",
+          signal: AbortSignal.timeout(120000),
+        });
         const data = await res.json();
         if (!res.ok) throw new Error(data.detail || "HTTP " + res.status);
         runStatus.textContent =
@@ -206,7 +225,8 @@ flowchart TB
         await loadReports();
         if (data.run_id) showReport(data.run_id);
       } catch (err) {
-        runStatus.textContent = "Failed: " + err.message + " (cold start? retry)";
+        const msg = err.name === "TimeoutError" ? "Timed out — retry in 30s" : err.message;
+        runStatus.textContent = "Failed: " + msg;
       } finally {
         runBtn.disabled = false;
       }
