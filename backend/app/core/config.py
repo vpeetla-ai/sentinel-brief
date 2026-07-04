@@ -20,6 +20,9 @@ class Settings(BaseSettings):
     environment: str = "development"
     log_level: str = "INFO"
 
+    # API auth — gates POST /runs (costs an LLM call + sends email); unset = open (dev/demo)
+    sentinel_api_key: str | None = None
+
     # LLM (optional — mock summarizer used when unset)
     openai_api_key: str | None = None
     groq_api_key: str | None = None

@@ -62,6 +62,8 @@ Set these **in Render only** (not in git):
 | `AEGISAI_GATEWAY_ENABLED` | `false` (MVP) | No |
 | `AEGISAI_GATEWAY_FAIL_OPEN` | `true` (MVP) | No |
 | `MIN_DELTA_ITEMS` | `3` (default) | No |
+| `SENTINEL_API_KEY` | Random secret | **Yes before treating this as production** — without it, `POST /runs` has no auth at all (see [ADR-0002](adr/0002-runs-auth-and-llm-synthesis.md)); set the same value as the `SENTINEL_API_KEY` GitHub Actions secret so the nightly cron keeps working |
+| `GROQ_API_KEY` | `gsk_...` from Groq | No — real LLM executive summary; template fallback used when unset |
 
 ### Observability (optional — Langfuse Cloud)
 

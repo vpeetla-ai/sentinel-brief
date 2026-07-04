@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 import json
+import secrets
 from pathlib import Path
+from typing import Annotated
 
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
@@ -33,6 +35,16 @@ class RunResponse(BaseModel):
     email_status: str | None
 
 
+def _require_api_key(x_api_key: Annotated[str | None, Header()] = None) -> None:
+    """Gate POST /runs — unauthenticated, it costs an LLM call and can send email
+    on every hit. Only enforced when SENTINEL_API_KEY is set (dev/demo stays open)."""
+    expected = get_settings().sentinel_api_key
+    if not expected:
+        return
+    if not x_api_key or not secrets.compare_digest(x_api_key, expected):
+        raise HTTPException(401, "Invalid or missing X-API-Key")
+
+
 @app.get("/health")
 async def health():
     return {"status": "ok", "service": "sentinel-brief"}
@@ -43,7 +55,7 @@ async def list_sources():
     return {"sources": load_source_configs()}
 
 
-@app.post("/runs", response_model=RunResponse)
+@app.post("/runs", response_model=RunResponse, dependencies=[Depends(_require_api_key)])
 async def trigger_run():
     result = await run_brief()
     eval_result = result.get("eval_result") or {}

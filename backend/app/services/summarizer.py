@@ -1,14 +1,30 @@
-"""Brief summarization — template MVP; LLM hook for production."""
+"""Brief summarization — real LLM executive summary when a key is configured, deterministic
+template fallback otherwise (no key configured, or the LLM call fails)."""
 
 from __future__ import annotations
 
+import logging
 from collections import defaultdict
 from datetime import UTC, datetime
 
+import httpx
+
+from app.core.config import get_settings
 from app.models.items import RawItem
 
+logger = logging.getLogger(__name__)
 
-def summarize_brief(*, deltas: list[RawItem], run_id: str) -> str:
+GROQ_CHAT_URL = "https://api.groq.com/openai/v1/chat/completions"
+OPENAI_CHAT_URL = "https://api.openai.com/v1/chat/completions"
+
+SUMMARY_SYSTEM_PROMPT = (
+    "You write a 3-5 sentence executive summary of an overnight research/news scan for a busy "
+    "reader. Ground every claim in the provided titles and sources — do not invent facts. "
+    "Plain prose, no bullet points, no preamble."
+)
+
+
+async def summarize_brief(*, deltas: list[RawItem], run_id: str) -> str:
     """Build executive markdown brief from delta items."""
     if not deltas:
         return f"# Sentinel Brief — {run_id}\n\n_No new items since last run._\n"
@@ -17,6 +33,8 @@ def summarize_brief(*, deltas: list[RawItem], run_id: str) -> str:
     for item in deltas:
         grouped[item.source_label].append(item)
 
+    executive_summary = await _llm_executive_summary(deltas) or _template_executive_summary(deltas)
+
     lines = [
         f"# Sentinel Brief — {datetime.now(UTC).strftime('%Y-%m-%d %H:%M UTC')}",
         "",
@@ -24,7 +42,7 @@ def summarize_brief(*, deltas: list[RawItem], run_id: str) -> str:
         "",
         "## Executive summary",
         "",
-        _executive_summary(deltas),
+        executive_summary,
         "",
         "## By source",
         "",
@@ -43,7 +61,7 @@ def summarize_brief(*, deltas: list[RawItem], run_id: str) -> str:
     return "\n".join(lines)
 
 
-def _executive_summary(deltas: list[RawItem]) -> str:
+def _template_executive_summary(deltas: list[RawItem]) -> str:
     sources = sorted({d.source_label for d in deltas})
     top = deltas[:5]
     bullets = [f"- **{d.source_label}:** {d.title}" for d in top]
@@ -51,3 +69,42 @@ def _executive_summary(deltas: list[RawItem]) -> str:
         f"Overnight scan across **{len(sources)}** sources surfaced **{len(deltas)}** new items. "
         "Highlights:\n\n" + "\n".join(bullets)
     )
+
+
+async def _llm_executive_summary(deltas: list[RawItem]) -> str | None:
+    """Return a real LLM-written summary, or None to fall back to the template.
+
+    Prefers Groq (cheap/fast) when configured, then OpenAI. Both expose an
+    OpenAI-compatible /chat/completions endpoint, so one client shape covers both —
+    no LLM SDK dependency needed on top of the httpx the repo already uses.
+    """
+    settings = get_settings()
+    if settings.groq_api_key:
+        url, api_key, model = GROQ_CHAT_URL, settings.groq_api_key, "llama-3.3-70b-versatile"
+    elif settings.openai_api_key:
+        url, api_key, model = OPENAI_CHAT_URL, settings.openai_api_key, settings.llm_model
+    else:
+        return None
+
+    items_text = "\n".join(f"- [{d.source_label}] {d.title}: {d.summary[:200]}" for d in deltas[:20])
+    try:
+        async with httpx.AsyncClient(timeout=20.0) as client:
+            response = await client.post(
+                url,
+                headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
+                json={
+                    "model": model,
+                    "messages": [
+                        {"role": "system", "content": SUMMARY_SYSTEM_PROMPT},
+                        {"role": "user", "content": f"New items since last run:\n{items_text}"},
+                    ],
+                    "temperature": 0.3,
+                    "max_tokens": 300,
+                },
+            )
+            response.raise_for_status()
+            payload = response.json()
+            return payload["choices"][0]["message"]["content"].strip()
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("llm_executive_summary_failed error=%s — falling back to template", exc)
+        return None

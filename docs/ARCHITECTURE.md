@@ -124,10 +124,11 @@ sequenceDiagram
 |----|----------|-------------------------|
 | D1 | LangGraph linear pipeline | Celery tasks, cron shell script |
 | D2 | JSON snapshot store | SQLite, Redis — chose JSON for MVP portability |
-| D3 | Template summarizer MVP | LLM-first — deferred cost/latency tuning |
+| D3 | LLM executive summary (Groq/OpenAI), template fallback | LLM-only — rejected, would break on missing key/outage instead of degrading |
 | D4 | RSS/API only | Playwright — rejected for fragility + ToS |
 | D5 | Single recipient email | Slack digest — future |
 | D6 | Gateway on email only | Gateway on fetch — rejected (read-only) |
+| D7 | API-key gate on `POST /runs` only | Gating `/reports` too — rejected, archive is meant to be publicly browsable (portfolio demo) |
 
 ## Tradeoffs
 
@@ -136,9 +137,10 @@ sequenceDiagram
 | Autonomous inner loop | Runs overnight without you | Bad brief possible if eval too weak |
 | Eval before email | Blocks low-quality sends | May skip useful quiet days (min_delta) |
 | RSS over scrape | Stable, fast, legal | Misses layout-only sites, paywalled bodies |
-| Template brief | Zero LLM cost, deterministic tests | Less narrative synthesis |
+| LLM brief with template fallback | Real synthesis when configured, never hard-fails | Slightly higher latency/cost when a key is set |
 | Per-source snapshots | Simple diff | No cross-source dedup yet |
 | Fail-open gateway (dev) | Local iteration | Must disable in prod |
+| `SENTINEL_API_KEY` unset = open | Dev/demo works without setup | Must be set before treating a deployment as production (see ADR-0002) |
 
 ## Data flow
 

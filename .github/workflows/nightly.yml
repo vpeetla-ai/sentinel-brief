@@ -13,10 +13,11 @@ jobs:
       - name: Trigger Sentinel Brief run
         env:
           API_URL: ${{ secrets.SENTINEL_API_URL }}
+          API_KEY: ${{ secrets.SENTINEL_API_KEY }}
         run: |
           if [ -z "$API_URL" ]; then
             echo "SENTINEL_API_URL secret not set — skip (set after Render deploy)"
             exit 0
           fi
-          curl -fsS -X POST "${API_URL%/}/runs"
+          curl -fsS -X POST "${API_URL%/}/runs" ${API_KEY:+-H "X-API-Key: $API_KEY"}
           curl -fsS "${API_URL%/}/reports?limit=1"

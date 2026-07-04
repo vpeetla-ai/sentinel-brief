@@ -118,6 +118,7 @@ flowchart TB
         <button id="run-now" type="button" style="background:var(--accent);color:#fff;border:none;padding:.5rem 1rem;border-radius:6px;cursor:pointer;">
           Run brief now
         </button>
+        <input id="api-key-input" type="password" placeholder="API key (only if backend requires one)" style="margin-left:.5rem;padding:.4rem;border-radius:6px;border:1px solid var(--border, #ccc);" />
         <span id="run-status" style="margin-left:.75rem;color:var(--muted);"></span>
       </p>
       <div id="report-list">Loading…</div>
@@ -214,8 +215,11 @@ flowchart TB
         const awake = await wakeApi();
         if (!awake) throw new Error("API not reachable — Render may still be starting");
         runStatus.textContent = "Running… fetching 9 sources (~60–90s)";
+        const apiKey = document.getElementById("api-key-input").value.trim();
+        const headers = apiKey ? { "X-API-Key": apiKey } : {};
         const res = await fetch(API_BASE + "/runs", {
           method: "POST",
+          headers,
           signal: AbortSignal.timeout(120000),
         });
         const data = await res.json();

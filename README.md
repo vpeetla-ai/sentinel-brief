@@ -87,7 +87,8 @@ flowchart TB
 | Golden eval suite | ✅ | `sentinel_brief_gate_v1` in golden-eval-registry |
 | Trace-linked observability | ✅ | `app.vpeetla_observability` — system/trace/node spans |
 | Langfuse export | ✅ | Set `LANGFUSE_*` in Render — see [DEPLOY.md](docs/DEPLOY.md) |
-| LLM synthesis | 🟡 | Template brief MVP; LLM hook planned |
+| LLM synthesis | ✅ | Groq/OpenAI executive summary — falls back to template on no key or failure |
+| API-key gate on `POST /runs` | ✅ | Set `SENTINEL_API_KEY` on Render — see [ADR-0002](docs/adr/0002-runs-auth-and-llm-synthesis.md) |
 | Persistent report disk | 🟡 | Render ephemeral — reports reset on redeploy |
 | Playwright scrape | ⬜ | Deferred per ADR-0001 |
 

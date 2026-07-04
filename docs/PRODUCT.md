@@ -53,8 +53,8 @@ Configured in `config/sources.yaml`:
 | Phase | Deliverable |
 |-------|-------------|
 | **MVP (now)** | Adapters, graph, eval, gateway email, API, demo UI |
-| **v0.2** | LLM synthesis + golden eval suite |
-| **v0.3** | Dedup, source health dashboard, Render cron |
+| **v0.2 (done)** | LLM synthesis (Groq/OpenAI, template fallback) + golden eval suite + `POST /runs` API-key gate |
+| **v0.3** | Dedup, source health dashboard, Render cron, persistent (non-ephemeral) report storage |
 | **v1.0** | HITL approval queue integration with AegisLoop |
 
 ## Competitive framing

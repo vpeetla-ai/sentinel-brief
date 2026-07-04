@@ -74,7 +74,7 @@ async def diff_items(state: SentinelState) -> dict:
 async def write_brief(state: SentinelState) -> dict:
     run_id = state["run_id"]
     deltas = [RawItem.model_validate(d) for d in state.get("deltas", [])]
-    markdown = summarize_brief(deltas=deltas, run_id=run_id)
+    markdown = await summarize_brief(deltas=deltas, run_id=run_id)
     logger.info("brief_written run_id=%s markdown_chars=%s", run_id, len(markdown))
     return {"brief_markdown": markdown, "status": "summarized"}
 
