@@ -4,46 +4,43 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Sentinel Brief — Governed Overnight Intelligence</title>
-  <style>
-    :root { --bg:#0f1419; --card:#1a2332; --text:#e7ecf3; --muted:#8b9cb3; --accent:#3d9cf5; --ok:#3dd68c; }
-    * { box-sizing: border-box; }
-    body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; line-height: 1.5; }
-    header { padding: 2rem; border-bottom: 1px solid #2a3544; }
-    h1 { margin: 0 0 .5rem; font-size: 1.75rem; }
-    .tag { color: var(--accent); font-size: .9rem; }
-    main { max-width: 960px; margin: 0 auto; padding: 1.5rem; }
-    .tabs { display: flex; gap: .5rem; margin-bottom: 1rem; flex-wrap: wrap; }
-    .tabs button { background: var(--card); border: 1px solid #2a3544; color: var(--text); padding: .5rem 1rem; border-radius: 6px; cursor: pointer; }
-    .tabs button.active { border-color: var(--accent); color: var(--accent); }
-    .panel { display: none; background: var(--card); border-radius: 8px; padding: 1.25rem; border: 1px solid #2a3544; }
-    .panel.active { display: block; }
-    pre { background: #0a0e14; padding: 1rem; overflow: auto; border-radius: 6px; font-size: .85rem; }
-    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
-    th, td { text-align: left; padding: .5rem; border-bottom: 1px solid #2a3544; }
-    .status-ok { color: var(--ok); }
-    a { color: var(--accent); }
-    .mermaid { background: #0a0e14; border-radius: 8px; padding: 1rem; overflow-x: auto; }
-  </style>
+  <link rel="stylesheet" href="styles.css" />
   <script type="module">
     import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-    mermaid.initialize({ startOnLoad: true, theme: 'dark', securityLevel: 'loose' });
+    mermaid.initialize({ startOnLoad: true, theme: 'neutral', securityLevel: 'loose' });
   </script>
 </head>
 <body>
-  <header>
-    <p class="tag">vpeetla-ai · governed autonomy</p>
-    <h1>Sentinel Brief</h1>
-    <p>Overnight AI intelligence — nine allowlisted sources → diff → eval → gateway email</p>
+  <header class="app-header">
+    <div class="app-header__inner">
+      <a href="/" class="brand">
+        <div class="brand__mark">SB</div>
+        <div class="brand__text">
+          <p class="brand__eyebrow">Governed overnight intelligence</p>
+          <p class="brand__title">Sentinel Brief</p>
+        </div>
+      </a>
+      <div class="header-actions">
+        <span class="status-badge">Live API</span>
+        <a href="https://github.com/vpeetla-ai/sentinel-brief" class="btn-ghost" style="padding:0.4rem 0.75rem;font-size:0.8rem;text-decoration:none">GitHub</a>
+      </div>
+    </div>
   </header>
-  <main>
-    <div class="tabs">
-      <button class="active" data-tab="arch">Architecture</button>
-      <button data-tab="tradeoffs">Tradeoffs</button>
-      <button data-tab="sources">Sources</button>
-      <button data-tab="reports">Reports</button>
+  <main class="shell app-main">
+    <div class="page-hero">
+      <p class="eyebrow">Governed autonomy</p>
+      <h1>Sentinel Brief</h1>
+      <p class="lede">Nine allowlisted sources → diff → eval → AegisAI gateway email — autonomous inner loop, governed outer loop.</p>
     </div>
 
-    <section id="arch" class="panel active">
+    <div class="tabs" role="tablist">
+      <button class="active" type="button" data-tab="arch" role="tab">Architecture</button>
+      <button type="button" data-tab="tradeoffs" role="tab">Tradeoffs</button>
+      <button type="button" data-tab="sources" role="tab">Sources</button>
+      <button type="button" data-tab="reports" role="tab">Reports</button>
+    </div>
+
+    <section id="arch" class="tab-panel active" role="tabpanel">
       <h2>System diagram</h2>
       <pre class="mermaid">
 flowchart TB
@@ -75,7 +72,7 @@ flowchart TB
         <li><strong>Governed outer loop:</strong> AegisAI gateway on <code>email.send</code> only</li>
       </ul>
       <h3>Stack</h3>
-      <table>
+      <table class="compare-table">
         <tr><th>Layer</th><th>Tech</th></tr>
         <tr><td>Orchestration</td><td>LangGraph StateGraph</td></tr>
         <tr><td>API</td><td>FastAPI on Render</td></tr>
@@ -84,9 +81,9 @@ flowchart TB
       </table>
     </section>
 
-    <section id="tradeoffs" class="panel">
+    <section id="tradeoffs" class="tab-panel" role="tabpanel">
       <h2>Key tradeoffs</h2>
-      <table>
+      <table class="compare-table">
         <tr><th>Choice</th><th>Upside</th><th>Downside</th></tr>
         <tr><td>RSS/API over scrape</td><td>Stable, ToS-safe</td><td>Misses paywalled bodies</td></tr>
         <tr><td>Eval before email</td><td>Blocks junk sends</td><td>Quiet days may skip</td></tr>
@@ -96,7 +93,7 @@ flowchart TB
       <p>See <a href="https://github.com/vpeetla-ai/sentinel-brief/blob/main/docs/ARCHITECTURE.md">ARCHITECTURE.md</a> and <a href="https://github.com/vpeetla-ai/sentinel-brief/blob/main/docs/adr/0001-governed-overnight-brief.md">ADR-0001</a>.</p>
     </section>
 
-    <section id="sources" class="panel">
+    <section id="sources" class="tab-panel" role="tabpanel">
       <h2>Allowlisted sources</h2>
       <ul>
         <li>Hacker News (Firebase top)</li>
@@ -111,20 +108,19 @@ flowchart TB
       </ul>
     </section>
 
-    <section id="reports" class="panel">
+    <section id="reports" class="tab-panel" role="tabpanel">
       <h2>Recent reports</h2>
-      <p id="api-hint" class="tag"></p>
-      <p>
-        <button id="run-now" type="button" style="background:var(--accent);color:#fff;border:none;padding:.5rem 1rem;border-radius:6px;cursor:pointer;">
-          Run brief now
-        </button>
-        <input id="api-key-input" type="password" placeholder="API key (only if backend requires one)" style="margin-left:.5rem;padding:.4rem;border-radius:6px;border:1px solid var(--border, #ccc);" />
-        <span id="run-status" style="margin-left:.75rem;color:var(--muted);"></span>
-      </p>
-      <div id="report-list">Loading…</div>
-      <pre id="report-detail" style="margin-top:1rem;display:none;max-height:320px;"></pre>
+      <p id="api-hint" class="muted"></p>
+      <div class="inline-actions" style="align-items:center">
+        <button id="run-now" type="button">Run brief now</button>
+        <input id="api-key-input" type="password" placeholder="API key (if required)" style="max-width:220px" />
+        <span id="run-status" class="muted"></span>
+      </div>
+      <div id="report-list" style="margin-top:1rem">Loading…</div>
+      <pre id="report-detail" class="hidden" style="margin-top:1rem;max-height:320px"></pre>
     </section>
   </main>
+  <footer class="app-footer">Sentinel Brief · <a href="https://github.com/vpeetla-ai/sentinel-brief">vpeetla-ai</a></footer>
   <script>
     window.SENTINEL_API = window.SENTINEL_API || "https://sentinel-brief-api.onrender.com";
   </script>
@@ -133,7 +129,7 @@ flowchart TB
     document.querySelectorAll('.tabs button').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
         btn.classList.add('active');
         document.getElementById(btn.dataset.tab).classList.add('active');
       });
@@ -161,7 +157,7 @@ flowchart TB
           return;
         }
         el.innerHTML =
-          "<table><tr><th>Run</th><th>When</th><th>Status</th><th>Deltas</th><th>Eval</th><th>Email</th></tr>" +
+          "<table class='compare-table'><tr><th>Run</th><th>When</th><th>Status</th><th>Deltas</th><th>Eval</th><th>Email</th></tr>" +
           data.reports
             .map(
               (r) =>
@@ -187,7 +183,7 @@ flowchart TB
       try {
         const res = await fetch(API_BASE + "/reports/" + runId);
         const data = await res.json();
-        detail.style.display = "block";
+        detail.classList.remove("hidden");
         detail.textContent = data.brief_markdown || JSON.stringify(data, null, 2);
       } catch {
         detail.textContent = "Failed to load report.";
@@ -199,9 +195,7 @@ flowchart TB
         try {
           const res = await fetch(API_BASE + "/health", { signal: AbortSignal.timeout(45000) });
           if (res.ok) return true;
-        } catch {
-          /* Render cold start — retry */
-        }
+        } catch { /* cold start */ }
         await new Promise((r) => setTimeout(r, 8000));
       }
       return false;
