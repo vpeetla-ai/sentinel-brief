@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import secrets
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Annotated
 
@@ -67,6 +68,33 @@ async def trigger_run():
         eval_passed=bool(eval_result.get("passed")),
         email_status=email.get("status"),
     )
+
+
+@app.get("/api/v1/ops/metrics")
+async def ops_metrics(limit: int = 50):
+    settings = get_settings()
+    settings.report_dir.mkdir(parents=True, exist_ok=True)
+    paths = sorted(settings.report_dir.glob("*.json"), reverse=True)[:limit]
+    reports = []
+    passed = 0
+    for path in paths:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        ok = bool((data.get("eval_result") or {}).get("passed"))
+        if ok:
+            passed += 1
+        reports.append(data)
+    total = len(reports)
+    success = round(100.0 * passed / total, 1) if total else 100.0
+    return {
+        "service": "sentinel-brief",
+        "collected_at": datetime.now(timezone.utc).isoformat(),
+        "total_runs": total,
+        "success_rate_pct": success,
+        "p95_latency_ms": None,
+        "active_entities": len(load_source_configs()),
+        "slo": {"target_uptime_pct": 99.5, "success_target_pct": 95.0},
+        "extra": {"sources_monitored": len(load_source_configs())},
+    }
 
 
 @app.get("/reports")

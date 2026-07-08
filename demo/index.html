@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Sentinel Brief — Governed Overnight Intelligence</title>
+  <link rel="stylesheet" href="architect-panel.css" />
   <link rel="stylesheet" href="styles.css" />
   <script type="module">
     import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
@@ -79,6 +80,7 @@ flowchart TB
         <tr><td>Email</td><td>Resend + gateway</td></tr>
         <tr><td>Store</td><td>JSON snapshots + reports</td></tr>
       </table>
+      <div id="architect-root"></div>
     </section>
 
     <section id="tradeoffs" class="tab-panel" role="tabpanel">
@@ -125,6 +127,8 @@ flowchart TB
     window.SENTINEL_API = window.SENTINEL_API || "https://sentinel-brief-api.onrender.com";
   </script>
   <script src="config.js"></script>
+  <script src="architect-config.js"></script>
+  <script src="architect-panel.js"></script>
   <script>
     document.querySelectorAll('.tabs button').forEach(btn => {
       btn.addEventListener('click', () => {
