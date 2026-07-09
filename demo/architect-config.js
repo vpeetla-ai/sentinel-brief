@@ -16,4 +16,11 @@ window.ARCHITECT_CONFIG = {
     { decision: "File-based report archive", gain: "Simple deploy on Render free tier", trade: "No SQL analytics without export" },
     { decision: "Multi-source adapters", gain: "Extensible intel pipeline", trade: "Each source needs maintenance" },
   ],
+  adrLinks: [
+    { title: "Case study — Sentinel Brief", href: "https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/case-studies/sentinel-brief.md" },
+  ],
+  docsLinks: [
+    { title: "Architecture", href: "https://github.com/vpeetla-ai/sentinel-brief/blob/main/docs/ARCHITECTURE.md" },
+    { title: "SLO targets", href: "https://github.com/vpeetla-ai/sentinel-brief/blob/main/docs/SLO.md" },
+  ],
 };
