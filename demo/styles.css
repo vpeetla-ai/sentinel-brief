@@ -625,3 +625,47 @@ pre.rejected { border-color: rgba(220, 38, 38, 0.35); background: var(--vp-dange
 .tab-panel li { margin-bottom: 0.35rem; }
 .status-ok { color: var(--vp-success); font-weight: 600; }
 .mermaid { background: var(--vp-bg-subtle); border-radius: var(--vp-radius-sm); padding: 1rem; overflow-x: auto; border: 1px solid var(--vp-border); }
+
+.brief-article {
+  margin-top: 1rem;
+  padding: 1.25rem 1.5rem;
+  border: 1px solid var(--vp-border);
+  border-radius: var(--vp-radius-lg);
+  background: var(--vp-surface);
+  max-height: 480px;
+  overflow: auto;
+  line-height: 1.55;
+}
+.brief-article h2 { margin: 0 0 0.75rem; font-size: 1.15rem; color: var(--vp-text); }
+.brief-article h3 { margin: 1.1rem 0 0.5rem; font-size: 1rem; color: var(--vp-text); }
+.brief-article h4 { margin: 0.9rem 0 0.4rem; font-size: 0.9rem; color: var(--vp-text); }
+.brief-article p { margin: 0 0 0.65rem; color: var(--vp-text-secondary); font-size: 0.9rem; }
+.brief-article ul { margin: 0 0 0.75rem; padding-left: 1.25rem; color: var(--vp-text-secondary); }
+.brief-article li { margin-bottom: 0.3rem; font-size: 0.9rem; }
+.brief-article.hidden { display: none; }
+
+.brief-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.5rem;
+}
+.brief-step {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.3rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid var(--vp-border);
+  color: var(--vp-text-muted);
+  background: var(--vp-surface);
+}
+.brief-step.active {
+  border-color: var(--vp-accent);
+  color: var(--vp-accent-hover);
+  background: var(--vp-accent-subtle);
+}
+.brief-step.done {
+  border-color: rgba(5, 150, 105, 0.35);
+  color: var(--vp-success);
+  background: var(--vp-success-subtle);
+}

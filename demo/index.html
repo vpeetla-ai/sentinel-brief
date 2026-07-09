@@ -63,8 +63,9 @@
         <input id="api-key-input" type="password" placeholder="API key (if required)" style="max-width:220px" />
         <span id="run-status" class="muted"></span>
       </div>
+      <div id="run-progress" class="muted" style="margin-top:0.75rem"></div>
       <div id="report-list" style="margin-top:1rem">Loading…</div>
-      <pre id="report-detail" class="hidden" style="margin-top:1rem;max-height:320px"></pre>
+      <article id="report-detail" class="brief-article hidden" aria-live="polite"></article>
     </section>
     </div>
   </main>
@@ -129,14 +130,66 @@
       }
     }
 
+    function renderMarkdown(md) {
+      const esc = (s) =>
+        String(s)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+      const lines = String(md || "").split("\n");
+      const html = [];
+      let inList = false;
+      const closeList = () => {
+        if (inList) {
+          html.push("</ul>");
+          inList = false;
+        }
+      };
+      for (const raw of lines) {
+        const line = raw.trimEnd();
+        if (/^###\s+/.test(line)) {
+          closeList();
+          html.push("<h4>" + esc(line.replace(/^###\s+/, "")) + "</h4>");
+        } else if (/^##\s+/.test(line)) {
+          closeList();
+          html.push("<h3>" + esc(line.replace(/^##\s+/, "")) + "</h3>");
+        } else if (/^#\s+/.test(line)) {
+          closeList();
+          html.push("<h2>" + esc(line.replace(/^#\s+/, "")) + "</h2>");
+        } else if (/^[-*]\s+/.test(line)) {
+          if (!inList) {
+            html.push("<ul>");
+            inList = true;
+          }
+          html.push("<li>" + esc(line.replace(/^[-*]\s+/, "")) + "</li>");
+        } else if (!line.trim()) {
+          closeList();
+        } else {
+          closeList();
+          html.push("<p>" + esc(line) + "</p>");
+        }
+      }
+      closeList();
+      return html.join("") || "<p class='muted'>Empty brief.</p>";
+    }
+
     async function showReport(runId) {
       try {
         const res = await fetch(API_BASE + "/reports/" + runId);
         const data = await res.json();
         detail.classList.remove("hidden");
-        detail.textContent = data.brief_markdown || JSON.stringify(data, null, 2);
+        if (data.brief_markdown) {
+          detail.innerHTML =
+            "<p class='muted' style='margin:0 0 0.75rem'>Run <code>" +
+            (runId || "").slice(0, 8) +
+            "…</code></p>" +
+            renderMarkdown(data.brief_markdown);
+        } else {
+          detail.innerHTML = "<pre class='trace'>" + JSON.stringify(data, null, 2) + "</pre>";
+        }
       } catch {
-        detail.textContent = "Failed to load report.";
+        detail.classList.remove("hidden");
+        detail.innerHTML = "<p class='alert alert-error'>Failed to load report.</p>";
       }
     }
 
@@ -151,13 +204,29 @@
       return false;
     }
 
+    const progress = document.getElementById("run-progress");
+    const STEPS = ["Wake API", "Fetch 9 sources", "Diff overnight", "Eval gate", "Email via gateway"];
+
+    function setProgress(activeIdx, note) {
+      progress.innerHTML =
+        '<div class="brief-steps">' +
+        STEPS.map((label, i) => {
+          const cls = i < activeIdx ? "done" : i === activeIdx ? "active" : "";
+          return `<span class="brief-step ${cls}">${i + 1}. ${label}</span>`;
+        }).join("") +
+        "</div>" +
+        (note ? `<p class="muted" style="margin:0.5rem 0 0">${note}</p>` : "");
+    }
+
     runBtn.addEventListener("click", async () => {
       if (!API_BASE) return;
       runBtn.disabled = true;
+      setProgress(0, "Waking Render free-tier API…");
       runStatus.textContent = "Waking API…";
       try {
         const awake = await wakeApi();
         if (!awake) throw new Error("API not reachable — Render may still be starting");
+        setProgress(1, "Fetching allowlisted sources (~60–90s)…");
         runStatus.textContent = "Running… fetching 9 sources (~60–90s)";
         const apiKey = document.getElementById("api-key-input").value.trim();
         const headers = apiKey ? { "X-API-Key": apiKey } : {};
@@ -168,6 +237,7 @@
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.detail || "HTTP " + res.status);
+        setProgress(4, "Brief complete.");
         runStatus.textContent =
           `Done — ${data.delta_count} deltas, eval ${data.eval_passed ? "pass" : "fail"}, email: ${data.email_status || "—"}`;
         await loadReports();
@@ -175,6 +245,7 @@
       } catch (err) {
         const msg = err.name === "TimeoutError" ? "Timed out — retry in 30s" : err.message;
         runStatus.textContent = "Failed: " + msg;
+        progress.innerHTML = `<p class="alert alert-error">${msg}</p>`;
       } finally {
         runBtn.disabled = false;
       }
