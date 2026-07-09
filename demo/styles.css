@@ -39,6 +39,7 @@
   /* legacy aliases for existing demo class names */
   --bg: var(--vp-bg);
   --panel: var(--vp-surface);
+  --surface: var(--vp-surface);
   --text: var(--vp-text);
   --muted: var(--vp-text-muted);
   --accent: var(--vp-accent);
