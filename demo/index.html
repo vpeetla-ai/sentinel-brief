@@ -34,66 +34,11 @@
       <p class="lede">Nine allowlisted sources → diff → eval → AegisAI gateway email — autonomous inner loop, governed outer loop.</p>
     </div>
 
+    <div id="workbench-product">
     <div class="tabs" role="tablist">
-      <button class="active" type="button" data-tab="arch" role="tab">Architecture</button>
-      <button type="button" data-tab="tradeoffs" role="tab">Tradeoffs</button>
       <button type="button" data-tab="sources" role="tab">Sources</button>
-      <button type="button" data-tab="reports" role="tab">Reports</button>
+      <button type="button" data-tab="reports" role="tab" class="active">Reports</button>
     </div>
-
-    <section id="arch" class="tab-panel active" role="tabpanel">
-      <h2>System diagram</h2>
-      <pre class="mermaid">
-flowchart TB
-  CRON["Cron · POST /runs"] --> FETCH[fetch_sources]
-  FETCH --> DIFF[diff_items]
-  DIFF --> BRIEF[write_brief]
-  BRIEF --> EVAL[run_eval]
-  EVAL --> GW[gateway_and_email]
-  GW --> ARCH[archive_report]
-  subgraph sources["Allowlisted sources (read-only)"]
-    HN1[HN top · Firebase]
-    HN2[HN AI · Algolia]
-    ARX[arXiv cs.AI]
-    VB[VentureBeat AI]
-    MIT[MIT Tech Review]
-    INFO[The Information · headlines]
-    PD[Paper Digest]
-    BATCH[The Batch]
-    TDS[Towards Data Science]
-  end
-  sources --> FETCH
-  SNAP[(snapshots/)] <--> DIFF
-  ARCH --> REP[(reports/)]
-  GW --> AEGIS[AegisAI gateway] --> MAIL[Resend email]
-      </pre>
-      <h3>Governance boundary</h3>
-      <ul>
-        <li><strong>Autonomous inner loop:</strong> fetch, diff, summarize, eval</li>
-        <li><strong>Governed outer loop:</strong> AegisAI gateway on <code>email.send</code> only</li>
-      </ul>
-      <h3>Stack</h3>
-      <table class="compare-table">
-        <tr><th>Layer</th><th>Tech</th></tr>
-        <tr><td>Orchestration</td><td>LangGraph StateGraph</td></tr>
-        <tr><td>API</td><td>FastAPI on Render</td></tr>
-        <tr><td>Email</td><td>Resend + gateway</td></tr>
-        <tr><td>Store</td><td>JSON snapshots + reports</td></tr>
-      </table>
-      <div id="architect-root"></div>
-    </section>
-
-    <section id="tradeoffs" class="tab-panel" role="tabpanel">
-      <h2>Key tradeoffs</h2>
-      <table class="compare-table">
-        <tr><th>Choice</th><th>Upside</th><th>Downside</th></tr>
-        <tr><td>RSS/API over scrape</td><td>Stable, ToS-safe</td><td>Misses paywalled bodies</td></tr>
-        <tr><td>Eval before email</td><td>Blocks junk sends</td><td>Quiet days may skip</td></tr>
-        <tr><td>Template brief MVP</td><td>Free, testable</td><td>Less narrative</td></tr>
-        <tr><td>JSON snapshots</td><td>Portable</td><td>No dedup yet</td></tr>
-      </table>
-      <p>See <a href="https://github.com/vpeetla-ai/sentinel-brief/blob/main/docs/ARCHITECTURE.md">ARCHITECTURE.md</a> and <a href="https://github.com/vpeetla-ai/sentinel-brief/blob/main/docs/adr/0001-governed-overnight-brief.md">ADR-0001</a>.</p>
-    </section>
 
     <section id="sources" class="tab-panel" role="tabpanel">
       <h2>Allowlisted sources</h2>
@@ -110,7 +55,7 @@ flowchart TB
       </ul>
     </section>
 
-    <section id="reports" class="tab-panel" role="tabpanel">
+    <section id="reports" class="tab-panel active" role="tabpanel">
       <h2>Recent reports</h2>
       <p id="api-hint" class="muted"></p>
       <div class="inline-actions" style="align-items:center">
@@ -121,6 +66,7 @@ flowchart TB
       <div id="report-list" style="margin-top:1rem">Loading…</div>
       <pre id="report-detail" class="hidden" style="margin-top:1rem;max-height:320px"></pre>
     </section>
+    </div>
   </main>
   <footer class="app-footer">Sentinel Brief · <a href="https://github.com/vpeetla-ai/sentinel-brief">vpeetla-ai</a></footer>
   <script>
