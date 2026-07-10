@@ -11,6 +11,7 @@ ROOT = Path(__file__).resolve().parents[3]
 DATA_DIR = ROOT / "data"
 SNAPSHOT_DIR = DATA_DIR / "snapshots"
 REPORT_DIR = DATA_DIR / "reports"
+ARCHIVE_DIR = ROOT / "archives"
 
 
 class Settings(BaseSettings):
@@ -43,6 +44,7 @@ class Settings(BaseSettings):
     max_items_per_source: int = 12
     snapshot_dir: Path = SNAPSHOT_DIR
     report_dir: Path = REPORT_DIR
+    archive_dir: Path = ARCHIVE_DIR
     sources_config_path: Path = ROOT / "config" / "sources.yaml"
 
     # Observability (optional Langfuse)

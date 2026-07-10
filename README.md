@@ -89,7 +89,7 @@ flowchart TB
 | Langfuse export | ✅ | Set `LANGFUSE_*` in Render — see [DEPLOY.md](docs/DEPLOY.md) |
 | LLM synthesis | ✅ | Groq/OpenAI executive summary — falls back to template on no key or failure |
 | API-key gate on `POST /runs` | ✅ | Set `SENTINEL_API_KEY` on Render — see [ADR-0002](docs/adr/0002-runs-auth-and-llm-synthesis.md) |
-| Persistent report disk | 🟡 | Render ephemeral — reports reset on redeploy |
+| Persistent report disk | 🟡 | Live runs write `data/reports/` (ephemeral on Render). **Durable demo:** committed `archives/` merged into `GET /reports` so the UI is never empty after redeploy (P3.1). |
 | Playwright scrape | ⬜ | Deferred per ADR-0001 |
 
 ---

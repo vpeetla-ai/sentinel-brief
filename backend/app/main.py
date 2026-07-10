@@ -14,6 +14,7 @@ from pydantic import BaseModel
 
 from app.core.config import get_settings
 from app.services.brief_runner import run_brief
+from app.services.report_store import list_report_paths, resolve_report_path
 from app.sources.base import load_source_configs
 from app.vpeetla_observability.middleware import TraceRequestMiddleware
 
@@ -74,7 +75,7 @@ async def trigger_run():
 async def ops_metrics(limit: int = 50):
     settings = get_settings()
     settings.report_dir.mkdir(parents=True, exist_ok=True)
-    paths = sorted(settings.report_dir.glob("*.json"), reverse=True)[:limit]
+    paths = list_report_paths(settings, limit=limit)
     reports = []
     passed = 0
     for path in paths:
@@ -93,7 +94,10 @@ async def ops_metrics(limit: int = 50):
         "p95_latency_ms": None,
         "active_entities": len(load_source_configs()),
         "slo": {"target_uptime_pct": 99.5, "success_target_pct": 95.0},
-        "extra": {"sources_monitored": len(load_source_configs())},
+        "extra": {
+            "sources_monitored": len(load_source_configs()),
+            "durable_archive": True,
+        },
     }
 
 
@@ -101,7 +105,7 @@ async def ops_metrics(limit: int = 50):
 async def list_reports(limit: int = 20):
     settings = get_settings()
     settings.report_dir.mkdir(parents=True, exist_ok=True)
-    paths = sorted(settings.report_dir.glob("*.json"), reverse=True)[:limit]
+    paths = list_report_paths(settings, limit=limit)
     reports = []
     for path in paths:
         data = json.loads(path.read_text(encoding="utf-8"))
@@ -112,6 +116,7 @@ async def list_reports(limit: int = 20):
                 "status": data.get("status"),
                 "delta_count": data.get("delta_count"),
                 "eval_passed": (data.get("eval_result") or {}).get("passed"),
+                "storage": "archive" if "archives" in str(path) else "live",
             }
         )
     return {"reports": reports}
@@ -120,7 +125,7 @@ async def list_reports(limit: int = 20):
 @app.get("/reports/{run_id}")
 async def get_report(run_id: str):
     settings = get_settings()
-    path: Path = settings.report_dir / f"{run_id}.json"
-    if not path.exists():
+    path = resolve_report_path(settings, run_id)
+    if path is None:
         raise HTTPException(status_code=404, detail="Report not found")
     return json.loads(path.read_text(encoding="utf-8"))
