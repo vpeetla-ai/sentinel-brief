@@ -123,14 +123,14 @@ Configure in [`config/sources.yaml`](config/sources.yaml).
 
 **Business function:** Overnight intelligence brief — allowlisted sources → diff → summary → eval → governed email.
 
-Staff+ prep crosswalk — [playbook](https://github.com/vpeetla-ai/ai-architect-interview-playbook) · [study UI](https://ai-architect-interview-playbook-9xs.vercel.app) · [Practice Arena](https://ai-architect-practice-arena.vercel.app) · [org matrix](https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/docs/REPO_INTERVIEW_MAP.md). Only entries this repo honestly exercises.
+Staff+ prep crosswalk — [playbook](https://github.com/vpeetla-ai/ai-architect-interview-playbook) · [study UI](https://ai-architect-interview-playbook.vercel.app) · [Practice Arena](https://ai-architect-practice-arena.vercel.app) · [org matrix](https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/docs/REPO_INTERVIEW_MAP.md). Only entries this repo honestly exercises.
 
 | Category | Entry | Fit |
 |----------|-------|-----|
-| System design | [Agent orchestration](https://ai-architect-interview-playbook-9xs.vercel.app/q/ai-system-design/03-agent-tool-use-orchestration-platform) ([md](https://github.com/vpeetla-ai/ai-architect-interview-playbook/blob/main/ai-system-design/03-agent-tool-use-orchestration-platform.md)) | LangGraph run with gateway on email.send only |
-| General SD | [Job scheduler / task queue](https://ai-architect-interview-playbook-9xs.vercel.app/q/general-system-design/04-distributed-job-scheduler-task-queue) ([md](https://github.com/vpeetla-ai/ai-architect-interview-playbook/blob/main/general-system-design/04-distributed-job-scheduler-task-queue.md)) | Scheduled overnight runs |
-| General SD | [Notification system](https://ai-architect-interview-playbook-9xs.vercel.app/q/general-system-design/08-notification-system) ([md](https://github.com/vpeetla-ai/ai-architect-interview-playbook/blob/main/general-system-design/08-notification-system.md)) | Email as irreversible notify path |
-| General SD | [Web crawler](https://ai-architect-interview-playbook-9xs.vercel.app/q/general-system-design/11-web-crawler) ([md](https://github.com/vpeetla-ai/ai-architect-interview-playbook/blob/main/general-system-design/11-web-crawler.md)) | Partial — allowlisted RSS/API fetch, not open crawl |
+| System design | [Agent orchestration](https://ai-architect-interview-playbook.vercel.app/q/ai-system-design/03-agent-tool-use-orchestration-platform/) ([md](https://github.com/vpeetla-ai/ai-architect-interview-playbook/blob/main/ai-system-design/03-agent-tool-use-orchestration-platform.md)) | LangGraph run with gateway on email.send only |
+| General SD | [Job scheduler / task queue](https://ai-architect-interview-playbook.vercel.app/q/general-system-design/04-distributed-job-scheduler-task-queue/) ([md](https://github.com/vpeetla-ai/ai-architect-interview-playbook/blob/main/general-system-design/04-distributed-job-scheduler-task-queue.md)) | Scheduled overnight runs |
+| General SD | [Notification system](https://ai-architect-interview-playbook.vercel.app/q/general-system-design/08-notification-system/) ([md](https://github.com/vpeetla-ai/ai-architect-interview-playbook/blob/main/general-system-design/08-notification-system.md)) | Email as irreversible notify path |
+| General SD | [Web crawler](https://ai-architect-interview-playbook.vercel.app/q/general-system-design/11-web-crawler/) ([md](https://github.com/vpeetla-ai/ai-architect-interview-playbook/blob/main/general-system-design/11-web-crawler.md)) | Partial — allowlisted RSS/API fetch, not open crawl |
 
 ## Stack fit
 
