@@ -83,7 +83,7 @@ flowchart TB
 | Resend email | ✅ | Live — `vpeetla.ai@gmail.com` |
 | Render API | ✅ | [sentinel-brief-api.onrender.com](https://sentinel-brief-api.onrender.com) |
 | Vercel demo UI | ✅ | [sentinel-brief-ruddy.vercel.app](https://sentinel-brief-ruddy.vercel.app) |
-| Nightly cron | 🟡 | GitHub Action — set `SENTINEL_API_URL` secret |
+| Nightly cron | ✅ | Workflow shipped (`.github/workflows/nightly.yml`); requires `SENTINEL_API_URL` secret to hit live API |
 | Golden eval suite | ✅ | `sentinel_brief_gate_v1` in golden-eval-registry |
 | Trace-linked observability | ✅ | `app.vpeetla_observability` — system/trace/node spans |
 | Langfuse export | ✅ | Set `LANGFUSE_*` in Render — see [DEPLOY.md](docs/DEPLOY.md) |
