@@ -87,7 +87,7 @@ flowchart TB
 | Golden eval suite | ✅ | `sentinel_brief_gate_v1` in golden-eval-registry |
 | Trace-linked observability | ✅ | `app.vpeetla_observability` — system/trace/node spans |
 | Langfuse export | ✅ | Set `LANGFUSE_*` in Render — see [DEPLOY.md](docs/DEPLOY.md) |
-| LLM synthesis | ✅ | Groq/OpenAI executive summary — falls back to template on no key or failure |
+| LLM synthesis | ✅ | Prefer `LLM_GATEWAY_URL` → [aegis-llm-gateway](https://github.com/vpeetla-ai/aegis-llm-gateway); else Groq/OpenAI; template fallback |
 | API-key gate on `POST /runs` | ✅ | Set `SENTINEL_API_KEY` on Render — see [ADR-0002](docs/adr/0002-runs-auth-and-llm-synthesis.md) |
 | Persistent report disk | 🟡 | Live runs write `data/reports/` (ephemeral on Render). **Durable demo:** committed `archives/` merged into `GET /reports` so the UI is never empty after redeploy (P3.1). |
 | Playwright scrape | ⬜ | Deferred per ADR-0001 |
@@ -128,6 +128,7 @@ Staff+ prep crosswalk — [playbook](https://github.com/vpeetla-ai/ai-architect-
 | Category | Entry | Fit |
 |----------|-------|-----|
 | System design | [Agent orchestration](https://ai-architect-interview-playbook.vercel.app/q/ai-system-design/03-agent-tool-use-orchestration-platform/) ([md](https://github.com/vpeetla-ai/ai-architect-interview-playbook/blob/main/ai-system-design/03-agent-tool-use-orchestration-platform.md)) | LangGraph run with gateway on email.send only |
+| Cloud | [LLM gateway / model routing](https://ai-architect-interview-playbook.vercel.app/q/cloud-architecture/07-llm-gateway-semantic-cache-model-router/) ([md](https://github.com/vpeetla-ai/ai-architect-interview-playbook/blob/main/cloud-architecture/07-llm-gateway-semantic-cache-model-router.md)) | `LLM_GATEWAY_URL` → aegis-llm-gateway; email still via AegisAI |
 | General SD | [Job scheduler / task queue](https://ai-architect-interview-playbook.vercel.app/q/general-system-design/04-distributed-job-scheduler-task-queue/) ([md](https://github.com/vpeetla-ai/ai-architect-interview-playbook/blob/main/general-system-design/04-distributed-job-scheduler-task-queue.md)) | Scheduled overnight runs |
 | General SD | [Notification system](https://ai-architect-interview-playbook.vercel.app/q/general-system-design/08-notification-system/) ([md](https://github.com/vpeetla-ai/ai-architect-interview-playbook/blob/main/general-system-design/08-notification-system.md)) | Email as irreversible notify path |
 | General SD | [Web crawler](https://ai-architect-interview-playbook.vercel.app/q/general-system-design/11-web-crawler/) ([md](https://github.com/vpeetla-ai/ai-architect-interview-playbook/blob/main/general-system-design/11-web-crawler.md)) | Partial — allowlisted RSS/API fetch, not open crawl |
@@ -137,6 +138,7 @@ Staff+ prep crosswalk — [playbook](https://github.com/vpeetla-ai/ai-architect-
 | Layer | Integration |
 |-------|-------------|
 | Orchestration | LangGraph `StateGraph` |
+| Completions | Optional `LLM_GATEWAY_URL` → aegis-llm-gateway (email path unchanged) |
 | Governance | AegisAI gateway on `email.send` |
 | Evaluation | In-repo eval + [golden-eval-registry](https://github.com/vpeetla-ai/golden-eval-registry) |
 | Observability | Trace-linked spans + optional Langfuse — [ARCHITECTURE](docs/ARCHITECTURE.md#observability) |

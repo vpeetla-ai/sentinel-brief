@@ -97,6 +97,14 @@ async def ops_metrics(limit: int = 50):
         "extra": {
             "sources_monitored": len(load_source_configs()),
             "durable_archive": True,
+            "llm_gateway": {
+                "enabled": bool((settings.llm_gateway_url or "").strip()),
+                "url_configured": bool((settings.llm_gateway_url or "").strip()),
+                "tenant_id": settings.llm_gateway_tenant_id
+                if (settings.llm_gateway_url or "").strip()
+                else None,
+                "plane": "aegis-llm-gateway",
+            },
         },
     }
 

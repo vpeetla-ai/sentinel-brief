@@ -28,6 +28,10 @@ class Settings(BaseSettings):
     openai_api_key: str | None = None
     groq_api_key: str | None = None
     llm_model: str = "gpt-4o-mini"
+    # Federated LLM gateway plane (aegis-llm-gateway) — preferred when set
+    llm_gateway_url: str | None = None  # e.g. http://127.0.0.1:8100/v1
+    llm_gateway_api_key: str | None = None
+    llm_gateway_tenant_id: str = "sentinel-brief"
 
     # Email
     resend_api_key: str | None = None

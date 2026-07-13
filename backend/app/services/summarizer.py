@@ -74,15 +74,26 @@ def _template_executive_summary(deltas: list[RawItem]) -> str:
 async def _llm_executive_summary(deltas: list[RawItem]) -> str | None:
     """Return a real LLM-written summary, or None to fall back to the template.
 
-    Prefers Groq (cheap/fast) when configured, then OpenAI. Both expose an
-    OpenAI-compatible /chat/completions endpoint, so one client shape covers both —
-    no LLM SDK dependency needed on top of the httpx the repo already uses.
+    Preference: aegis-llm-gateway → Groq → OpenAI. All expose OpenAI-compatible
+    /chat/completions, so one httpx client shape covers them — no LLM SDK needed.
     """
     settings = get_settings()
-    if settings.groq_api_key:
+    gateway_url = (settings.llm_gateway_url or "").strip()
+    headers: dict[str, str] = {"Content-Type": "application/json"}
+
+    if gateway_url:
+        base = gateway_url.rstrip("/")
+        url = f"{base}/chat/completions" if base.endswith("/v1") else f"{base}/v1/chat/completions"
+        api_key = settings.llm_gateway_api_key or "sentinel-gateway"
+        model = settings.llm_model or "stub-small"
+        headers["Authorization"] = f"Bearer {api_key}"
+        headers["X-Tenant-Id"] = settings.llm_gateway_tenant_id or "sentinel-brief"
+    elif settings.groq_api_key:
         url, api_key, model = GROQ_CHAT_URL, settings.groq_api_key, "llama-3.3-70b-versatile"
+        headers["Authorization"] = f"Bearer {api_key}"
     elif settings.openai_api_key:
         url, api_key, model = OPENAI_CHAT_URL, settings.openai_api_key, settings.llm_model
+        headers["Authorization"] = f"Bearer {api_key}"
     else:
         return None
 
@@ -91,7 +102,7 @@ async def _llm_executive_summary(deltas: list[RawItem]) -> str | None:
         async with httpx.AsyncClient(timeout=20.0) as client:
             response = await client.post(
                 url,
-                headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
+                headers=headers,
                 json={
                     "model": model,
                     "messages": [
