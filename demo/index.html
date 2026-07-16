@@ -3,13 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Sentinel Brief — Governed Overnight Intelligence</title>
-  <link rel="stylesheet" href="architect-panel.css" />
-  <link rel="stylesheet" href="styles.css" />
-  <script type="module">
-    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-    mermaid.initialize({ startOnLoad: true, theme: 'neutral', securityLevel: 'loose' });
-  </script>
+  <title>Sentinel Brief — Glass-box Overnight Intelligence</title>
+  <link rel="stylesheet" href="architect-panel.css?v=2" />
+  <link rel="stylesheet" href="styles.css?v=2" />
 </head>
 <body>
   <header class="app-header">
@@ -27,231 +23,92 @@
       </div>
     </div>
   </header>
-  <main class="shell app-main">
-    <div class="page-hero">
+
+  <main class="shell app-main gb-shell">
+    <div class="gb-hero">
       <p class="eyebrow">Governed autonomy</p>
-      <h1>Sentinel Brief</h1>
-      <p class="lede">Nine allowlisted sources → diff → eval → AegisAI gateway email — autonomous inner loop, governed outer loop.</p>
+      <h1>Sentinel Brief — glass-box overnight intel</h1>
+      <p class="lede">
+        Nine allowlisted sources → overnight diff → eval gate → AegisAI gateway email.
+        Architecture and live SLOs on the left · honest LangGraph phase replay in the center · run &amp; read briefs on the right.
+      </p>
     </div>
 
-    <div id="workbench-product">
-    <div class="tabs" role="tablist">
-      <button type="button" data-tab="sources" role="tab">Sources</button>
-      <button type="button" data-tab="reports" role="tab" class="active">Reports</button>
-    </div>
+    <div class="gb-workbench">
+      <aside id="gb-rail" class="gb-rail" aria-label="Architecture and metrics"></aside>
 
-    <section id="sources" class="tab-panel" role="tabpanel">
-      <h2>Allowlisted sources</h2>
-      <ul>
-        <li>Hacker News (Firebase top)</li>
-        <li>HN AI front page (Algolia)</li>
-        <li>arXiv cs.AI</li>
-        <li>VentureBeat AI</li>
-        <li>MIT Technology Review</li>
-        <li>The Information <em>(headlines only)</em></li>
-        <li>Paper Digest</li>
-        <li>The Batch — DeepLearning.AI</li>
-        <li>Towards Data Science</li>
-      </ul>
-    </section>
+      <section id="gb-center" class="gb-center" aria-label="Brief pipeline glass-box">
+        <div class="gb-center-head">
+          <h2>Brief pipeline · LangGraph replay</h2>
+          <span id="gbSourceBadge" class="gb-source-badge">awaiting run</span>
+        </div>
+        <div id="gbPipeline" class="gb-pipeline" aria-live="polite"></div>
+        <div class="gb-gate" id="gbGate">
+          Fetch → Diff → Summarize → Eval → Gateway email → Archive.
+          Replay uses real TraceRecorder <code>duration_ms</code> when the API returns <code>phases</code>.
+        </div>
+        <div id="gbEventLog" class="gb-event-log" aria-live="polite">
+          <div class="muted" style="font-style:italic">No spans yet — run a brief to replay LangGraph nodes.</div>
+        </div>
+        <div id="gbOpsStrip" class="gb-ops-strip">
+          <span><strong>nodes</strong> —</span>
+          <span><strong>latency</strong> n/a</span>
+          <span><strong>eval</strong> —</span>
+          <span><strong>status</strong> idle</span>
+        </div>
+      </section>
 
-    <section id="reports" class="tab-panel active" role="tabpanel">
-      <h2>Recent reports</h2>
-      <p id="api-hint" class="muted"></p>
-      <div class="inline-actions" style="align-items:center">
-        <button id="run-now" type="button">Run brief now</button>
-        <input id="api-key-input" type="password" placeholder="API key (if required)" style="max-width:220px" />
-        <span id="run-status" class="muted"></span>
-      </div>
-      <div id="run-progress" class="muted" style="margin-top:0.75rem"></div>
-      <div id="report-list" style="margin-top:1rem">Loading…</div>
-      <article id="report-detail" class="brief-article hidden" aria-live="polite"></article>
-    </section>
+      <aside id="workbench-product" class="gb-product" aria-label="Brief product">
+        <p class="gb-guided">
+          <strong>1.</strong> Run brief now → <strong>2.</strong> watch LangGraph phases in the center →
+          <strong>3.</strong> open a report to read the overnight brief.
+        </p>
+
+        <section class="panel">
+          <h2>Run overnight brief</h2>
+          <p class="muted" id="api-hint"></p>
+          <div class="gb-run-row">
+            <button id="run-now" type="button" class="primary">Run brief now</button>
+          </div>
+          <label for="api-key-input">API key (only if required)</label>
+          <input id="api-key-input" type="password" placeholder="X-API-Key" />
+          <p id="run-status" class="muted" style="margin-top:0.5rem"></p>
+          <div id="run-progress" class="muted" style="margin-top:0.35rem"></div>
+        </section>
+
+        <section class="panel">
+          <h2>Recent reports</h2>
+          <div id="report-list">Loading…</div>
+          <article id="report-detail" class="brief-article hidden" aria-live="polite"></article>
+        </section>
+
+        <details class="panel">
+          <summary>Allowlisted sources</summary>
+          <ul class="gb-source-list">
+            <li>Hacker News (Firebase top)</li>
+            <li>HN AI front page (Algolia)</li>
+            <li>arXiv cs.AI</li>
+            <li>VentureBeat AI</li>
+            <li>MIT Technology Review</li>
+            <li>The Information <em>(headlines only)</em></li>
+            <li>Paper Digest</li>
+            <li>The Batch — DeepLearning.AI</li>
+            <li>Towards Data Science</li>
+          </ul>
+        </details>
+      </aside>
     </div>
   </main>
+
   <footer class="app-footer">Sentinel Brief · <a href="https://github.com/vpeetla-ai/sentinel-brief">vpeetla-ai</a></footer>
+
   <script>
     window.SENTINEL_API = window.SENTINEL_API || "https://sentinel-brief-api.onrender.com";
   </script>
   <script src="config.js"></script>
-  <script src="architect-config.js"></script>
-  <script src="architect-panel.js"></script>
-  <script>
-    document.querySelectorAll('.tabs button').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-        btn.classList.add('active');
-        document.getElementById(btn.dataset.tab).classList.add('active');
-      });
-    });
-    const API_BASE = (window.SENTINEL_API || "").replace(/\/$/, "");
-    const el = document.getElementById("report-list");
-    const hint = document.getElementById("api-hint");
-    const detail = document.getElementById("report-detail");
-    const runBtn = document.getElementById("run-now");
-    const runStatus = document.getElementById("run-status");
-
-    async function loadReports() {
-      if (!API_BASE) {
-        hint.textContent = "API URL not configured.";
-        el.innerHTML = "<p>Set window.SENTINEL_API in config.js</p>";
-        return;
-      }
-      hint.textContent = "API: " + API_BASE;
-      try {
-        const res = await fetch(API_BASE + "/reports?limit=10");
-        if (!res.ok) throw new Error("HTTP " + res.status);
-        const data = await res.json();
-        if (!data.reports?.length) {
-          el.textContent = "No reports yet — click Run brief now (takes ~1 min).";
-          return;
-        }
-        el.innerHTML =
-          "<table class='compare-table'><tr><th>Run</th><th>When</th><th>Status</th><th>Deltas</th><th>Eval</th><th>Email</th></tr>" +
-          data.reports
-            .map(
-              (r) =>
-                `<tr data-run="${r.run_id}" style="cursor:pointer">` +
-                `<td><code>${(r.run_id || "").slice(0, 8)}…</code></td>` +
-                `<td>${(r.created_at || "").slice(0, 19).replace("T", " ")}</td>` +
-                `<td>${r.status || "—"}</td>` +
-                `<td>${r.delta_count ?? "—"}</td>` +
-                `<td class="${r.eval_passed ? "status-ok" : ""}">${r.eval_passed ? "pass" : "fail"}</td>` +
-                `<td>${r.status === "emailed" ? "sent" : "—"}</td></tr>`
-            )
-            .join("") +
-          "</table>";
-        el.querySelectorAll("tr[data-run]").forEach((row) => {
-          row.addEventListener("click", () => showReport(row.dataset.run));
-        });
-      } catch (err) {
-        el.textContent = "Could not reach API (" + err.message + "). Render may be waking up — retry in 30s.";
-      }
-    }
-
-    function renderMarkdown(md) {
-      const esc = (s) =>
-        String(s)
-          .replace(/&/g, "&amp;")
-          .replace(/</g, "&lt;")
-          .replace(/>/g, "&gt;");
-      const lines = String(md || "").split("\n");
-      const html = [];
-      let inList = false;
-      const closeList = () => {
-        if (inList) {
-          html.push("</ul>");
-          inList = false;
-        }
-      };
-      for (const raw of lines) {
-        const line = raw.trimEnd();
-        if (/^###\s+/.test(line)) {
-          closeList();
-          html.push("<h4>" + esc(line.replace(/^###\s+/, "")) + "</h4>");
-        } else if (/^##\s+/.test(line)) {
-          closeList();
-          html.push("<h3>" + esc(line.replace(/^##\s+/, "")) + "</h3>");
-        } else if (/^#\s+/.test(line)) {
-          closeList();
-          html.push("<h2>" + esc(line.replace(/^#\s+/, "")) + "</h2>");
-        } else if (/^[-*]\s+/.test(line)) {
-          if (!inList) {
-            html.push("<ul>");
-            inList = true;
-          }
-          html.push("<li>" + esc(line.replace(/^[-*]\s+/, "")) + "</li>");
-        } else if (!line.trim()) {
-          closeList();
-        } else {
-          closeList();
-          html.push("<p>" + esc(line) + "</p>");
-        }
-      }
-      closeList();
-      return html.join("") || "<p class='muted'>Empty brief.</p>";
-    }
-
-    async function showReport(runId) {
-      try {
-        const res = await fetch(API_BASE + "/reports/" + runId);
-        const data = await res.json();
-        detail.classList.remove("hidden");
-        if (data.brief_markdown) {
-          detail.innerHTML =
-            "<p class='muted' style='margin:0 0 0.75rem'>Run <code>" +
-            (runId || "").slice(0, 8) +
-            "…</code></p>" +
-            renderMarkdown(data.brief_markdown);
-        } else {
-          detail.innerHTML = "<pre class='trace'>" + JSON.stringify(data, null, 2) + "</pre>";
-        }
-      } catch {
-        detail.classList.remove("hidden");
-        detail.innerHTML = "<p class='alert alert-error'>Failed to load report.</p>";
-      }
-    }
-
-    async function wakeApi(maxAttempts = 4) {
-      for (let i = 0; i < maxAttempts; i++) {
-        try {
-          const res = await fetch(API_BASE + "/health", { signal: AbortSignal.timeout(45000) });
-          if (res.ok) return true;
-        } catch { /* cold start */ }
-        await new Promise((r) => setTimeout(r, 8000));
-      }
-      return false;
-    }
-
-    const progress = document.getElementById("run-progress");
-    const STEPS = ["Wake API", "Fetch 9 sources", "Diff overnight", "Eval gate", "Email via gateway"];
-
-    function setProgress(activeIdx, note) {
-      progress.innerHTML =
-        '<div class="brief-steps">' +
-        STEPS.map((label, i) => {
-          const cls = i < activeIdx ? "done" : i === activeIdx ? "active" : "";
-          return `<span class="brief-step ${cls}">${i + 1}. ${label}</span>`;
-        }).join("") +
-        "</div>" +
-        (note ? `<p class="muted" style="margin:0.5rem 0 0">${note}</p>` : "");
-    }
-
-    runBtn.addEventListener("click", async () => {
-      if (!API_BASE) return;
-      runBtn.disabled = true;
-      setProgress(0, "Waking Render free-tier API…");
-      runStatus.textContent = "Waking API…";
-      try {
-        const awake = await wakeApi();
-        if (!awake) throw new Error("API not reachable — Render may still be starting");
-        setProgress(1, "Fetching allowlisted sources (~60–90s)…");
-        runStatus.textContent = "Running… fetching 9 sources (~60–90s)";
-        const apiKey = document.getElementById("api-key-input").value.trim();
-        const headers = apiKey ? { "X-API-Key": apiKey } : {};
-        const res = await fetch(API_BASE + "/runs", {
-          method: "POST",
-          headers,
-          signal: AbortSignal.timeout(120000),
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.detail || "HTTP " + res.status);
-        setProgress(4, "Brief complete.");
-        runStatus.textContent =
-          `Done — ${data.delta_count} deltas, eval ${data.eval_passed ? "pass" : "fail"}, email: ${data.email_status || "—"}`;
-        await loadReports();
-        if (data.run_id) showReport(data.run_id);
-      } catch (err) {
-        const msg = err.name === "TimeoutError" ? "Timed out — retry in 30s" : err.message;
-        runStatus.textContent = "Failed: " + msg;
-        progress.innerHTML = `<p class="alert alert-error">${msg}</p>`;
-      } finally {
-        runBtn.disabled = false;
-      }
-    });
-
-    loadReports();
-  </script>
+  <script src="architect-config.js?v=2"></script>
+  <script src="architect-panel.js?v=2"></script>
+  <script src="glassbox.js?v=1"></script>
+  <script src="app.js?v=1"></script>
 </body>
 </html>

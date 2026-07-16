@@ -159,6 +159,30 @@ async def archive_report(state: SentinelState) -> dict:
         "gateway": state.get("gateway"),
         "error": state.get("error"),
     }
+    # Prefer phases already computed by run_brief; fall back to in-process recorder.
+    if state.get("phases"):
+        payload["phases"] = state.get("phases")
+    if state.get("trace"):
+        payload["trace"] = state.get("trace")
+    else:
+        try:
+            from app.vpeetla_observability.recorder import get_recorder
+
+            recorder = get_recorder()
+            if recorder is not None:
+                payload["trace"] = recorder.to_dict()
+                payload["phases"] = [
+                    {
+                        "name": e.name,
+                        "duration_ms": e.duration_ms,
+                        "status": e.status,
+                        "level": e.level,
+                    }
+                    for e in recorder.events
+                    if e.level == "node"
+                ]
+        except Exception:
+            pass
     path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
     logger.info("report_archived run_id=%s path=%s", run_id, path)
     return {"report_path": str(path), "status": state.get("status", "archived")}

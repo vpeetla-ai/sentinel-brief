@@ -163,6 +163,15 @@ curl -X POST https://sentinel-brief-api.onrender.com/runs
 
 > `sentinel-brief.vercel.app` is registered to a **different** Vercel project (unrelated OSINT app). Use the team URL above or reclaim the domain in Vercel → Domains.
 
+The UI is a three-column **glass-box**: architecture + live SLOs (left), LangGraph
+phase replay from real `phases` / TraceRecorder `duration_ms` (center), run & reports
+(right). Always link to Vercel project **`sentinel-brief`** (hostname `sentinel-brief-ruddy`).
+
+```bash
+npx vercel link --project sentinel-brief --yes
+npx vercel --prod
+```
+
 1. [Vercel Dashboard](https://vercel.com) → **Add New** → **Project**
 2. Import **vpeetla-ai/sentinel-brief**
 3. **Root Directory:** leave as repo root — [`vercel.json`](../vercel.json) sets `outputDirectory: demo`
@@ -175,7 +184,7 @@ curl -X POST https://sentinel-brief-api.onrender.com/runs
 window.SENTINEL_API = "https://sentinel-brief-api.onrender.com";
 ```
 
-The **Reports** tab loads live runs from Render (CORS enabled).
+The product panel loads live runs from Render (CORS enabled).
 
 ---
 

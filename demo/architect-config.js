@@ -1,6 +1,6 @@
 window.ARCHITECT_CONFIG = {
   tagline:
-    "Overnight intelligence brief: multi-source ingest, delta detection, eval gate, and optional email — governed batch agent, not a chatbot.",
+    "Glass-box overnight intelligence: multi-source ingest, delta detection, eval gate, and optional email — governed batch agent with honest LangGraph span replay.",
   metricsUrl: (window.SENTINEL_API || "https://sentinel-brief-api.onrender.com") + "/api/v1/ops/metrics",
   metricsPath: "/api/v1/ops/metrics",
   metricLabels: { runs: "Brief runs", entities: "Sources monitored", latency: "P95 latency" },

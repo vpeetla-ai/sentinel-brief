@@ -29,12 +29,20 @@ app.add_middleware(
 )
 
 
+class PhaseSpan(BaseModel):
+    name: str
+    duration_ms: float | None = None
+    status: str = "ok"
+    level: str = "node"
+
+
 class RunResponse(BaseModel):
     run_id: str
     status: str
     delta_count: int
     eval_passed: bool
     email_status: str | None
+    phases: list[PhaseSpan] = []
 
 
 def _require_api_key(x_api_key: Annotated[str | None, Header()] = None) -> None:
@@ -62,12 +70,24 @@ async def trigger_run():
     result = await run_brief()
     eval_result = result.get("eval_result") or {}
     email = result.get("email_result") or {}
+    raw_phases = result.get("phases") or []
+    phases = [
+        PhaseSpan(
+            name=str(p.get("name", "")),
+            duration_ms=p.get("duration_ms"),
+            status=str(p.get("status") or "ok"),
+            level=str(p.get("level") or "node"),
+        )
+        for p in raw_phases
+        if isinstance(p, dict) and p.get("name")
+    ]
     return RunResponse(
         run_id=result.get("run_id", ""),
         status=result.get("status", "unknown"),
         delta_count=len(result.get("deltas", [])),
         eval_passed=bool(eval_result.get("passed")),
         email_status=email.get("status"),
+        phases=phases,
     )
 
 

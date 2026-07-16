@@ -29,6 +29,33 @@ async def run_brief(*, run_id: str | None = None) -> dict:
         eval_result = out.get("eval_result") or {}
         recorder.record_eval("brief.passed", bool(eval_result.get("passed")))
         export_trace_summary(recorder, trace_name="sentinel_brief.run")
+        # Honest phase replay for glass-box UI — real TraceRecorder spans, not invented.
+        out["trace"] = recorder.to_dict()
+        out["phases"] = [
+            {
+                "name": e.name,
+                "duration_ms": e.duration_ms,
+                "status": e.status,
+                "level": e.level,
+            }
+            for e in recorder.events
+            if e.level == "node"
+        ]
+        # Patch archive with full node spans (archive_report ran mid-graph before all spans closed).
+        report_path = out.get("report_path")
+        if report_path:
+            try:
+                from pathlib import Path
+                import json
+
+                path = Path(report_path)
+                if path.is_file():
+                    data = json.loads(path.read_text(encoding="utf-8"))
+                    data["phases"] = out["phases"]
+                    data["trace"] = out["trace"]
+                    path.write_text(json.dumps(data, indent=2), encoding="utf-8")
+            except Exception:
+                pass
         return out
     finally:
         set_recorder(None)

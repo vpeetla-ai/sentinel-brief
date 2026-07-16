@@ -82,7 +82,8 @@ flowchart TB
 | Eval gate | ✅ | Min deltas, citations, structure |
 | Resend email | ✅ | Live — `vpeetla.ai@gmail.com` |
 | Render API | ✅ | [sentinel-brief-api.onrender.com](https://sentinel-brief-api.onrender.com) |
-| Vercel demo UI | ✅ | [sentinel-brief-ruddy.vercel.app](https://sentinel-brief-ruddy.vercel.app) |
+| Vercel demo UI | ✅ | [sentinel-brief-ruddy.vercel.app](https://sentinel-brief-ruddy.vercel.app) — three-column glass-box |
+| Glass-box workbench UX | ✅ | arch/SLOs · LangGraph phase replay (`phases` / TraceRecorder `duration_ms`) · run & reports |
 | Nightly cron | ✅ | Workflow shipped (`.github/workflows/nightly.yml`); requires `SENTINEL_API_URL` secret to hit live API |
 | Golden eval suite | ✅ | `sentinel_brief_gate_v1` in golden-eval-registry |
 | Trace-linked observability | ✅ | `app.vpeetla_observability` — system/trace/node spans |
