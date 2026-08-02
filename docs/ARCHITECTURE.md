@@ -33,8 +33,9 @@ flowchart TB
 
   sources --> FETCH
   SNAP[(snapshots/)] <--> DIFF
-  ARCH --> REP[(reports/)]
+  ARCH --> REP[(reports/ + archives/)]
   GW --> AEGIS[AegisAI gateway] --> MAIL[Resend email]
+  APIOBS["GET /api/v1/ops/observability/status"] -.-> ARCH
 ```
 
 ## Layered view
@@ -169,10 +170,12 @@ sources.yaml → adapters → RawItem[]
 
 ## Observability
 
-Trace-linked spans via `backend/app/vpeetla_observability/` — same three-level model as the org spec ([TRACE_LINKED_OBSERVABILITY](https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/docs/TRACE_LINKED_OBSERVABILITY.md)).
+I’d open `archives/` + `GET /reports` before Langfuse. Trace-linked spans via `backend/app/vpeetla_observability/` — same three-level model as the org spec ([TRACE_LINKED_OBSERVABILITY](https://github.com/vpeetla-ai/ai-architecture-portfolio/blob/main/docs/TRACE_LINKED_OBSERVABILITY.md)).
 
 | Signal | Where |
 |--------|-------|
+| Compose honesty | `GET /api/v1/ops/observability/status` — archive SoT vs gateway/Langfuse |
+| Schedule surface | `GET /api/v1/ops/schedule` — cron hour + mirror flag; mutations stay env/Actions |
 | Request trace ID | `TraceRequestMiddleware` on FastAPI |
 | Run recorder | `TraceRecorder` in `brief_runner.py` |
 | Graph node spans | `@observe_node` on fetch, diff, brief, eval, email |
