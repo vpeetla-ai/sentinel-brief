@@ -184,5 +184,18 @@ async def archive_report(state: SentinelState) -> dict:
         except Exception:
             pass
     path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    # Optional durable mirror into committed archives/ (or a mounted volume path).
+    # On Render free disk this is still ephemeral unless ARCHIVE_DIR is a persistent mount.
+    if getattr(settings, "mirror_reports_to_archive", False):
+        try:
+            from app.services.report_store import archive_dir
+
+            dest_dir = archive_dir(settings)
+            dest_dir.mkdir(parents=True, exist_ok=True)
+            dest = dest_dir / path.name
+            dest.write_text(path.read_text(encoding="utf-8"), encoding="utf-8")
+            logger.info("report_mirrored_to_archive run_id=%s path=%s", run_id, dest)
+        except Exception as exc:
+            logger.warning("report_archive_mirror_failed run_id=%s err=%s", run_id, exc)
     logger.info("report_archived run_id=%s path=%s", run_id, path)
     return {"report_path": str(path), "status": state.get("status", "archived")}
