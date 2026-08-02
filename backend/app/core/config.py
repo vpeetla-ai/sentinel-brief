@@ -49,6 +49,8 @@ class Settings(BaseSettings):
     snapshot_dir: Path = SNAPSHOT_DIR
     report_dir: Path = REPORT_DIR
     archive_dir: Path = ARCHIVE_DIR
+    # When true, each live report is also copied into archive_dir (durable mount or git archives/)
+    mirror_reports_to_archive: bool = False
     sources_config_path: Path = ROOT / "config" / "sources.yaml"
 
     # Observability (optional Langfuse)

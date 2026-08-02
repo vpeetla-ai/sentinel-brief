@@ -90,7 +90,7 @@ flowchart TB
 | Langfuse export | ✅ | Set `LANGFUSE_*` in Render — see [DEPLOY.md](docs/DEPLOY.md) |
 | LLM synthesis | ✅ | Prefer `LLM_GATEWAY_URL` → [aegis-llm-gateway](https://github.com/vpeetla-ai/aegis-llm-gateway); else Groq/OpenAI; template fallback |
 | API-key gate on `POST /runs` | ✅ | Set `SENTINEL_API_KEY` on Render — see [ADR-0002](docs/adr/0002-runs-auth-and-llm-synthesis.md) |
-| Persistent report disk | 🟡 | Live runs write `data/reports/` (ephemeral on Render). **Durable demo:** committed `archives/` merged into `GET /reports` so the UI is never empty after redeploy (P3.1). |
+| Persistent report disk | 🟡 | Live runs write `data/reports/` (ephemeral on Render). **Durable demo:** committed `archives/` merged into `GET /reports`. **M5:** set `MIRROR_REPORTS_TO_ARCHIVE=true` (+ persistent `ARCHIVE_DIR` mount) to mirror each run into archives automatically. |
 | Playwright scrape | ⬜ | Deferred per ADR-0001 |
 
 ---
