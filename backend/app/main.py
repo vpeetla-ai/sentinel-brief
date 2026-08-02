@@ -57,12 +57,35 @@ def _require_api_key(x_api_key: Annotated[str | None, Header()] = None) -> None:
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "service": "sentinel-brief"}
+    settings = get_settings()
+    return {
+        "status": "ok",
+        "service": "sentinel-brief",
+        "cron_enabled": settings.cron_enabled,
+        "mirror_reports_to_archive": settings.mirror_reports_to_archive,
+        "langfuse_configured": bool(settings.langfuse_public_key and settings.langfuse_secret_key),
+        "aegis_gateway_configured": bool((settings.aegisai_api_base_url or "").strip()),
+    }
 
 
 @app.get("/sources")
 async def list_sources():
     return {"sources": load_source_configs()}
+
+
+@app.get("/api/v1/ops/schedule")
+async def ops_schedule():
+    """Product-facing overnight schedule (env-configured). Mutations stay env/Actions."""
+    settings = get_settings()
+    return {
+        "enabled": settings.cron_enabled,
+        "hour_utc": settings.cron_hour_utc,
+        "cron": f"0 {settings.cron_hour_utc} * * *",
+        "timezone": "UTC",
+        "mutation": "env_or_github_actions",
+        "mirror_reports_to_archive": settings.mirror_reports_to_archive,
+        "note": "Enable via CRON_ENABLED or GitHub Actions nightly.yml + SENTINEL_API_URL.",
+    }
 
 
 @app.post("/runs", response_model=RunResponse, dependencies=[Depends(_require_api_key)])
@@ -106,6 +129,8 @@ async def ops_metrics(limit: int = 50):
         reports.append(data)
     total = len(reports)
     success = round(100.0 * passed / total, 1) if total else 100.0
+    aegis_configured = bool((settings.aegisai_api_base_url or "").strip())
+    langfuse_configured = bool(settings.langfuse_public_key and settings.langfuse_secret_key)
     return {
         "service": "sentinel-brief",
         "collected_at": datetime.now(timezone.utc).isoformat(),
@@ -117,6 +142,12 @@ async def ops_metrics(limit: int = 50):
         "extra": {
             "sources_monitored": len(load_source_configs()),
             "durable_archive": True,
+            "mirror_reports_to_archive": settings.mirror_reports_to_archive,
+            "schedule": {
+                "enabled": settings.cron_enabled,
+                "hour_utc": settings.cron_hour_utc,
+                "mutation": "env_or_github_actions",
+            },
             "llm_gateway": {
                 "enabled": bool((settings.llm_gateway_url or "").strip()),
                 "url_configured": bool((settings.llm_gateway_url or "").strip()),
@@ -125,6 +156,12 @@ async def ops_metrics(limit: int = 50):
                 else None,
                 "plane": "aegis-llm-gateway",
             },
+            "aegis_gateway": {
+                "configured": aegis_configured,
+                "enabled": bool(settings.aegisai_gateway_enabled) and aegis_configured,
+                "fail_open": bool(settings.aegisai_gateway_fail_open),
+            },
+            "langfuse": {"configured": langfuse_configured},
         },
     }
 
