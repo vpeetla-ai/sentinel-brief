@@ -93,6 +93,7 @@ flowchart TB
 | Persistent report disk | 🟡 | Live runs write `data/reports/` (ephemeral on Render). **Durable demo:** committed `archives/` merged into `GET /reports`. **M5:** set `MIRROR_REPORTS_TO_ARCHIVE=true` (+ persistent `ARCHIVE_DIR` mount) to mirror each run into archives automatically. |
 | Schedule surface | ✅ | `GET /api/v1/ops/schedule` — cron hour + mirror flag; mutations env / GitHub Actions |
 | Ops observability planes | ✅ | `/api/v1/ops/metrics` exposes schedule, AegisAI notify, Langfuse, LLM gateway |
+| Observability status | ✅ | `GET /api/v1/ops/observability/status` — archive SoT vs Langfuse/gateway honesty |
 | Playwright scrape | ⬜ | Deferred per ADR-0001 |
 
 ---

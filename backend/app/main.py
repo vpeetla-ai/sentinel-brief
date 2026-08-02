@@ -166,6 +166,58 @@ async def ops_metrics(limit: int = 50):
     }
 
 
+@app.get("/api/v1/ops/observability/status")
+async def observability_status():
+    """Compose-plane honesty — archive SoT vs optional Langfuse / gateway notify."""
+    settings = get_settings()
+    aegis_configured = bool((settings.aegisai_api_base_url or "").strip())
+    langfuse_configured = bool(settings.langfuse_public_key and settings.langfuse_secret_key)
+    gateway_on = bool((settings.llm_gateway_url or "").strip())
+    return {
+        "source_of_truth": (
+            "Committed archives/ + live report_dir for overnight briefs; "
+            "not Langfuse (optional exporter only)"
+        ),
+        "exporters": [
+            {
+                "name": "OpsMetrics",
+                "state": "live",
+                "detail": "GET /api/v1/ops/metrics — run success + schedule/gateway planes",
+            },
+            {
+                "name": "Langfuse",
+                "state": "configured" if langfuse_configured else "unconfigured",
+                "detail": "Optional LANGFUSE_* export of brief spans — not the report ledger",
+            },
+        ],
+        "planes": {
+            "schedule": {
+                "enabled": settings.cron_enabled,
+                "hour_utc": settings.cron_hour_utc,
+                "mutation": "env_or_github_actions",
+            },
+            "mirror_reports_to_archive": settings.mirror_reports_to_archive,
+            "llm_gateway": {
+                "enabled": gateway_on,
+                "plane": "aegis-llm-gateway",
+            },
+            "aegis_gateway": {
+                "configured": aegis_configured,
+                "enabled": bool(settings.aegisai_gateway_enabled) and aegis_configured,
+                "fail_open": bool(settings.aegisai_gateway_fail_open),
+                "plane": "email_notify_side_effects",
+            },
+            "langfuse": {"configured": langfuse_configured},
+            "api_key_gated_runs": bool(settings.sentinel_api_key),
+        },
+        "recommendation": (
+            "Treat archives + /reports as demo proof. "
+            "Enable MIRROR_REPORTS_TO_ARCHIVE for durable overnight receipts; "
+            "AegisAI owns email side effects when wired."
+        ),
+    }
+
+
 @app.get("/reports")
 async def list_reports(limit: int = 20):
     settings = get_settings()
